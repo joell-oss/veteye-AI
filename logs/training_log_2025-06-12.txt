@@ -1,0 +1,11 @@
+[2025-06-12 17:47:06] BŁĄD: Nie znaleziono modelu. Można kontynuować, ale analiza nie będzie dostępna.
+D:\PYTHON\veteye2\logs\training_log_2025-06-12.txt
+NoneType: None
+
+[2025-06-12 17:47:06] INFO: Uruchomiono interfejs analizy obrazów USG
+[2025-06-12 17:47:06] INFO: Ładowanie modelu wykrywania ciąży: D:\PYTHON\veteye2\checkpoints\USGEquina-Pregna_v1_0.keras
+[2025-06-12 17:47:17] SUKCES: Model wykrywania ciąży załadowany pomyślnie
+[2025-06-12 17:47:17] BŁĄD: Nie znaleziono modelu szacowania dnia ciąży
+D:\PYTHON\veteye2\logs\training_log_2025-06-12.txt
+NoneType: None
+

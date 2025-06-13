@@ -1,0 +1,6 @@
+Class,Precision,Recall,F1-Score,Support
+Test,0.7308,0.1810,0.2901,105.0
+Training,0.5521,0.9381,0.6951,113.0
+accuracy,,,,0.5734
+macro avg,0.6414,0.5595,0.4926,218.0
+weighted avg,0.6381,0.5734,0.5000,218.0

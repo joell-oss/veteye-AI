@@ -1,0 +1,11 @@
+veteye2_env/
+scripts/__pycache__/
+__pycache__/
+package/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+.env
+checkpoints/USGEquina-Pregna_v1_0.keras
+package/cudnn-11.2-windows-x64-v8.1.1.33.zip

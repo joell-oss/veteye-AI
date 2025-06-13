@@ -1,0 +1,55 @@
+Copyright © 2025 vet-eye, Poland
+
+This software and all associated documentation files (the "Software") are the 
+result of a collaborative proof-of-concept (PoC) project developed jointly by 
+vet-eye, Poland and a partnering academic institution: KOZMINSKI EXECUTIVE 
+BUSINESS SCHOOL - CENTRUM DORADZTWA I KSZTAŁCENIA MENEDŻERÓW.
+
+The Software is proprietary and confidential. It is provided solely for 
+internal evaluation and research purposes related to the exploration and 
+development of AI-assisted diagnostic solutions for veterinary ultrasound 
+devices.
+
+Permission is granted to authorized individuals listed below to use, modify, 
+and evaluate the Software for internal non-commercial purposes only. 
+Redistribution, sublicensing, commercial use, or public disclosure of any part 
+of this Software is strictly prohibited without prior written permission 
+from vet-eye, Poland.
+
+The Software is provided "as is", without warranty of any kind, express or 
+implied, including but not limited to warranties of merchantability, fitness 
+for a particular purpose, or non-infringement. In no event shall the authors 
+or copyright holders be liable for any claim, damages, or other liability 
+arising from the use of the Software.
+
+Authorized contributors (to be completed):
+
+KOZMINSKI EXECUTIVE BUSINESS SCHOOL
+CENTRUM DORADZTWA I KSZTAŁCENIA MENEDŻERÓW  
+
+Jan Polański [nr albumu 67192-CKP] – Project Manager
+Responsible for leading the team, overseeing the project timeline, 
+and coordinating cross-functional activities; 
+
+Paweł Rusek [nr albumu 67193-CKP] – Ethics & Legal Advisor
+Ensured compliance with legal and ethical standards, 
+including GDPR and the EU AI Act; 
+
+Józef Sroka [nr albumu 67195-CKP] – Lead Developer
+Designed and implemented the core system architecture, 
+data processing pipelines, and AI model integration;
+
+Krzysztof Trawiński [nr albumu 67201-CKP] – Economic Analyst
+Conducted economic feasibility analysis 
+and developed cost–benefit models for project evaluation;
+
+Iwona Grub-Malinowska [nr albumu 67409-CKP] – Business Analyst
+Analyzed stakeholder needs and business value, 
+helped align technical capabilities with organizational goals;
+
+Adam Lasko [nr albumu 67182-CKP] – Deployment Engineer
+Handled the implementation of the solution, environment configuration, 
+and technical support during deployment. 
+
+For any inquiries regarding licensing or commercial use, 
+please contact: [support@vet-eye.com.pl]

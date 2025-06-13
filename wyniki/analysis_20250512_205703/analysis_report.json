@@ -1,0 +1,11 @@
+{
+    "image_path": "D:/PYTHON/veteye2/images/zarodek_D15_dni_jpg_800x600_crop_sharpen_q95.jpg",
+    "timestamp": "2025-05-12 20:57:03",
+    "image_features": null,
+    "pregnancy": {
+        "is_pregnant": true,
+        "confidence": 0.7008048892021179,
+        "timestamp": "2025-05-12 20:57:03",
+        "image_path": "D:/PYTHON/veteye2/images/zarodek_D15_dni_jpg_800x600_crop_sharpen_q95.jpg"
+    }
+}
