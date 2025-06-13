@@ -5,7 +5,25 @@ Józef Sroka, 67195-CKP, 2025, 67195-ckp@kozminski.edu.pl
 """
 import os
 import datetime
-
+"""
+Plik konfiguracyjny zawierający wszystkie stałe i parametry projektu analizy USG klaczy.
+KONFIGURACJA ŚRODOWISKA:
+- Wyciszenie komunikatów diagnostycznych TensorFlow
+- Parametry modelu: rozmiar obrazu, wielkość partii, liczba epok
+- Stopy uczenia dla treningu podstawowego i dostrajania
+STRUKTURA KATALOGÓW:
+- Automatyczne tworzenie hierarchii folderów projektu
+- Ścieżki do danych treningowych, testowych i wyników
+- Katalogi na modele, logi i raporty
+PARAMETRY MODELI:
+- Nazwy i lokalizacje plików modeli (bazowy, dostrojony, końcowy)
+- Model szacowania dni ciąży z przedziałami czasowymi
+- Parametry analizy cech obrazu (regiony, progi wykrywania)
+USTAWIENIA LOGOWANIA:
+- Automatyczne tworzenie plików dziennika z datą
+Centralizuje wszystkie konfiguracje w jednym miejscu dla łatwego zarządzania
+i modyfikacji parametrów bez ingerencji w kod główny.
+"""
 # Konfiguracja środowiska
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Wyciszenie mniej istotnych komunikatów TF
 
@@ -17,7 +35,7 @@ EPOCHS_FT = 40  # Liczba epok dla fine-tuningu
 LEARNING_RATE = 1e-4  # Początkowa stopa uczenia
 VALIDATION_SPLIT = 0.1  # Procent danych do walidacji
 
-# Określ ścieżkę bazową projektu (lokalizacja głównego katalogu projektu)
+# ścieżka bazowa projektu (lokalizacja głównego katalogu projektu)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Ścieżki do katalogów
