@@ -207,3 +207,45 @@ Raporty PDF tworzone są automatycznie po analizie obrazu i zawierają:
 - Wynik klasyfikacji
 - Szacowany dzień ciąży
 - Cechy diagnostyczne
+
+# Uruchomienie demonstartora
+
+
+1. Otwórz PowerShell w katalogu projektu.
+2. Uruchom skrypt komendą:
+    ```powershell
+    .\#StartMENU.ps1
+    ```
+3. Wybierz odpowiednią opcję wpisując jej numer i zatwierdź Enter.
+
+## Menu Główne – Opcje
+
+1. **Pełny Proces**  
+   Uruchamia kompletny cykl:
+   - Trenowanie modelu wykrywania ciąży
+   - Opcjonalne trenowanie modelu szacowania dni ciąży
+   - Uruchomienie interfejsu graficznego do analizy
+
+2. **Tylko Analiza**  
+   Wykorzystuje gotowe, wytrenowane modele do analizy:
+   - Interfejs graficzny
+   - Analiza pojedynczego obrazu
+   - Przetwarzanie wsadowe
+
+3. **Interfejs Graficzny**  
+   Uruchamia aplikację z graficznym interfejsem użytkownika dla interaktywnej analizy obrazów.
+
+4. **Analiza Pojedynczego Obrazu**  
+   Szybka analiza wybranego pliku obrazu USG z wyświetleniem wyników diagnostyki.
+
+5. **Przetwarzanie Wsadowe**  
+   Masowe przetwarzanie wielu obrazów z opcją generowania raportu zbiorczego.
+
+6. **Ewaluacja Modelu**  
+   Testowanie i ocena skuteczności istniejących modeli na danych testowych.
+
+7. **Wznowienie Treningu**  
+   Kontynuacja treningu modelu z wcześniej zapisanego punktu kontrolnego.
+
+8. **Interfejs Webowy**  
+   Uruchomienie serwera webowego z interfejsem dostępnym przez przeglądarkę.
