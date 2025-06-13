@@ -9,7 +9,23 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from PIL import Image
 from io import BytesIO
-
+"""
+Skrypt do automatycznego pobierania obrazów ze strony internetowej.
+Funkcjonalność:
+- Pobiera zawartość HTML ze wskazanej strony equi-medica.pl
+- Wyszukuje wszystkie linki do obrazów w formatach: jpg, jpeg, png, webp
+- Sprawdza zarówno tagi <img src="..."> jak i <a href="...">
+- Usuwa duplikaty znalezionych adresów URL
+- Tworzy folder docelowy "images" jeśli nie istnieje
+- Pobiera każdy obraz i zapisuje jako "mare_X.jpg"
+- Konwertuje obrazy webp do formatu JPEG z jakością 95%
+- Wyświetla postęp pobierania z komunikatami sukcesu/błędu
+Zmienne:
+- url: adres strony do przeszukania
+- target_folder: folder docelowy dla pobranych obrazów
+- img_links: lista unikalnych adresów URL obrazów
+Obsługa błędów: wychwytuje wyjątki podczas pobierania i konwersji
+"""
 url = "https://equi-medica.pl/oferta/rozrod-koni/"
 target_folder = "images"
 os.makedirs(target_folder, exist_ok=True)
@@ -56,8 +72,8 @@ for idx, img_url in enumerate(img_links):
             with open(filename, 'wb') as f:
                 f.write(img_data)
 
-        print(f"✔ Pobrano: {filename}")
+        print(f"Pobrano: {filename}")
         print(absolute_path)
     except Exception as e:
-        print(f"❌ Błąd pobierania {img_url}: {e}")
+        print(f"Błąd pobierania {img_url}: {e}")
 
