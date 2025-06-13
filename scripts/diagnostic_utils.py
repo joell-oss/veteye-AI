@@ -26,6 +26,21 @@ from config import REPORTS_DIR, IMAGE_SIZE
 
 # Rejestracja czcionek DejaVu do obsługi polskich znaków
 # Ścieżka do folderu głównego projektu
+"""
+Konfiguracja czcionek i stylów dla generowania raportów PDF z obsługą polskich znaków.
+REJESTRACJA CZCIONEK:
+- Ładuje czcionki DejaVu Sans (normalna i pogrubiona) z katalogu projektu
+- Zapewnia poprawne wyświetlanie polskich znaków diakrytycznych (ą, ć, ę, ł, ń, ó, ś, ź, ż)
+- Rejestruje czcionki w systemie ReportLab do użycia w dokumentach PDF
+DEFINICJE STYLÓW:
+- MyNormal: podstawowy styl tekstu (10pt) dla treści raportu
+- MyNormal1: mniejszy styl tekstu (6pt) dla dodatkowych informacji
+- MyHeading1: styl nagłówka głównego (10pt, pogrubiony)
+- MyHeading2: styl nagłówka drugorzędnego (8pt, pogrubiony)
+Wszystkie style używają czcionki DejaVu zapewniającej pełną obsługę 
+polskich znaków w generowanych raportach PDF z wynikami analizy USG.
+Niezbędne dla prawidłowego formatowania dokumentów w języku polskim.
+"""
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 # Ścieżka do czcionki
 FONT_PATH = os.path.join(BASE_DIR, 'fonts', 'DejaVuSans.ttf')
@@ -41,8 +56,24 @@ styles.add(ParagraphStyle(name='MyHeading1', fontName='DejaVu-Bold', fontSize=10
 styles.add(ParagraphStyle(name='MyHeading2', fontName='DejaVu-Bold', fontSize=8, spaceAfter=0))
 
 
-# Przykład wykresu cech obrazu
+
 def save_features_plot_to_file(image_features):
+    """
+    Tworzy wykres słupkowy cech obrazu USG i zapisuje go do pliku tymczasowego.
+    Funkcjonalność:
+    - Generuje poziomy wykres słupkowy z analizowanymi cechami obrazu
+    - Używa kolorystyki zielonej (jasny wypełnienie, ciemniejsze obramowanie)
+    - Ustawia tytuł "Cechy obrazu USG" w języku polskim
+    - Dostosowuje układ wykresu dla optymalnego wyświetlania
+    - Zapisuje wykres jako plik PNG w katalogu tymczasowym systemu
+    Parametry:
+    - image_features: słownik z nazwami cech jako kluczami i wartościami liczbowymi
+    Zwraca:
+    Ścieżkę do utworzonego pliku PNG z wykresem.
+    Plik tymczasowy przeznaczony do włączenia w raporty PDF, 
+    wymaga usunięcia po użyciu aby uniknąć zaśmiecania systemu.
+    Automatycznie zamyka obiekt matplotlib po zapisaniu.
+    """
     fig, ax = plt.subplots(figsize=(6, 4))
     labels = list(image_features.keys())
     values = list(image_features.values())
@@ -62,6 +93,23 @@ def save_features_plot_to_file(image_features):
     return tmp_file.name
 
 def analyze_image_features(image_path, image_size):
+    """
+    Analizuje cechy obrazu USG w celu wsparcia diagnostyki ciąży u klaczy.
+    Analizowane parametry obrazu:
+    - Średnia jasność: ogólna intensywność pikseli obrazu
+    - Odchylenie standardowe jasności: zmienność tonów w obrazie
+    - Kontrast: stosunek zmienności do średniej jasności
+    - Entropia: miara złożoności rozkładu jasności (informacyjność obrazu)
+    - Wielkość krawędzi: intensywność przejść tonalnych (ostrość struktur)
+    - Stosunek płynu: procent pikseli o wysokiej jasności (płyn owodniowy)
+    - Stosunek tkanki: procent pikseli o niskiej jasności (tkanki płodu)
+    Proces analizy:
+    - Konwertuje obraz do skali szarości i normalizuje wartości pikseli
+    - Oblicza histogram i statystyki rozkładu jasności
+    - Wykonuje detekcję krawędzi filtrem Sobela
+    - Szacuje proporcje różnych struktur anatomicznych
+    Zwraca słownik z liczbowymi wartościami cech lub wartości domyślne przy błędzie.
+    """    
     try:
         img = tf.keras.preprocessing.image.load_img(image_path, target_size=image_size, color_mode='grayscale')
         img_array = tf.keras.preprocessing.image.img_to_array(img) / 255.0
@@ -107,6 +155,23 @@ def analyze_image_features(image_path, image_size):
 
 
 def generate_description(predicted_class, confidence, image_path=None, additional_info=None):
+    """
+    Generuje szczegółowy opis wyników analizy USG klaczy z interpretacją kliniczną.
+    Funkcjonalność:
+    - Tworzy zróżnicowany opis w zależności od wyniku predykcji (ciąża/brak ciąży)
+    - Dostosowuje treść do poziomu pewności modelu (wysoka/średnia/niska)
+    - Automatycznie wydobywa szacowany dzień ciąży z nazwy pliku lub danych
+    - Analizuje cechy jakości obrazu i dodaje odpowiednie ostrzeżenia
+    - Włącza informacje o klaczy (imię, wiek) jeśli są dostępne
+    Struktura opisu:
+    - Wynik badania z datą i interpretacją medyczną
+    - Zalecenia dotyczące dalszego postępowania i kontroli
+    - Ostrzeżenia o jakości obrazu (kontrast, szum, artefakty)
+    - Informacje dodatkowe o strukturach anatomicznych
+    - Klauzula o automatycznym generowaniu i potrzebie weryfikacji
+    Zwraca profesjonalnie sformatowany raport weterynaryjny gotowy do użycia klinicznego.
+    Zapewnia odpowiedni poziom ostrożności diagnostycznej i zaleceń medycznych.
+    """
     image_features = None
     if image_path:
         try:
@@ -201,6 +266,24 @@ def generate_description(predicted_class, confidence, image_path=None, additiona
 
 
 def generate_pdf_report(image_path, predicted_class, confidence, description, additional_info=None, image_features=None):
+    """
+    Funkcja generuje raport diagnostyczny w formacie PDF na podstawie analizy obrazu USG.
+    Tworzy dokument zawierający:
+    - Dane pacjenta (imię klaczy, wiek, dzień cyklu)
+    - Wyniki predykcji modelu AI z poziomem pewności
+    - Obraz USG z opisem diagnostycznym
+    - Wykres cech obrazu z wyjaśnieniem parametrów jakości
+    - Analizę siedmiu kluczowych cech: jasność, kontrast, entropia, krawędzie, 
+      stosunek płynów i tkanek
+    Parametry:
+    - image_path: ścieżka do pliku obrazu USG
+    - predicted_class: klasa przewidziana przez model
+    - confidence: poziom pewności predykcji (0-1)
+    - description: opis diagnostyczny
+    - additional_info: dodatkowe informacje o pacjencie (opcjonalne)
+    - image_features: cechy obrazu do wykresu (opcjonalne)
+    Zwraca: ścieżkę do wygenerowanego pliku PDF z raportem
+    """
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     basename = os.path.basename(image_path).split('.')[0]
     report_filename = os.path.join(REPORTS_DIR, f"{timestamp}_{basename}.pdf")
