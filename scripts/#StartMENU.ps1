@@ -1,12 +1,28 @@
-# StartMENU.ps1
-# Menu wyboru opcji uruchomienia systemu wykrywania ci¹¿y u klaczy
+<#
+   ========================================================================================================================
+   Name         : StartMENU.ps1
+   Description  : Menu wyboru opcji uruchomienia systemu wykrywania ci¹¿y u klaczy
+   Created Date : 2025-05-20
+   Created By   : 67193-CKP Józef Sroka
+   Dependencies : 1) Windows PowerShell 5.1
+                  2) zainstalowane œrodowisko [Anaconda](https://www.anaconda.com/) lub [Python](https://www.python.org/)
+                  3) aktywne œrodowisko conda o nazwie `veteye2_env` (lub inne, zgodnie z konfiguracj¹)
+                  4) uprawnienia do uruchamiania skryptów PowerShell (`Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`)
 
-# Ustaw bie¿¹cy katalog jako katalog scripts
+   Revision History
+   Date       Release  Change By                 Description
+   2025-05-20 1.0      67193-CKP Józef Sroka     pierwsze wydanie
+   ========================================================================================================================
+#>
+
+
+
+# bie¿¹cy katalog jako katalog scripts
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path -Parent $scriptPath
 Set-Location $scriptDir
 
-# Œcie¿ka do g³ównego katalogu projektu (poziom wy¿ej)
+# scie¿ka do g³ównego katalogu projektu (poziom wy¿ej)
 $projectDir = Split-Path -Parent $scriptDir
 
 function Show-Menu {
