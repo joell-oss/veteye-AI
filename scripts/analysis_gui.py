@@ -29,7 +29,6 @@ from gui_utils import (
 from diagnostic_utils import generate_pdf_report, generate_description, analyze_image_features
 from prediction import predict_image
 from tkinter import messagebox 
-
 import glob
 
 
@@ -38,6 +37,39 @@ class AnalysisGUI:
 
     
     def __init__(self, master, model_path=None):
+        """
+               Inicjalizuje główne okno aplikacji veteye.AI do analizy obrazów USG klaczy.
+               Funkcja konstruktora odpowiedzialna za:
+               - Konfigurację głównego okna aplikacji z tytułem i wymiarami
+               - Ustawienie stylów wizualnych interfejsu (ttk.Style)
+               - Inicjalizację zmiennych przechowujących modele sztucznej inteligencji i dane klaczy
+               - Skonfigurowanie systemu zapisywania dziennika zdarzeń
+               - Utworzenie interfejsu graficznego i załadowanie modeli
+               Parametry:
+                   master: Główne okno Tkinter (okno nadrzędne)
+                   model_path (tekst, opcjonalny): Ścieżka do niestandardowego modelu.
+                                                  Jeśli None, używane są domyślne modele.
+               Konfiguracja okna:
+                   - Tytuł: "veteye.AI - System predykcji ciąży klaczy na podstawie diagnostyki obrazowej USG"
+                   - Rozmiar: 900x700 pikseli (minimalny 800x600)
+                   - Stan: zmaksymalizowane przy uruchomieniu
+                   - Motyw: 'alt' z niestandardowymi kolorami (granatowy)
+               Inicjalizowane składniki:
+                   - Modele SI: pregnancy_model (wykrywanie ciąży), day_model (szacowanie dni)
+                   - Zmienne interfejsu: klacz_name, klacz_age, estimated_day (StringVar)
+                   - System dziennika: setup_logging() z zapisem do pliku
+                   - Mapowanie dni ciąży: day_mapping (słownik)
+               Stylizacja interfejsu:
+                   - Czcionka: Segoe UI, 10pt dla większości elementów
+                   - Kolor tekstu: granatowy
+                   - Odstępy i formatowanie dla przycisków, etykiet, pól tekstowych
+                   - Zakładki z dopasowanym wyglądem
+               Wyjątki:
+                   Exception: W przypadku błędów podczas inicjalizacji modeli lub interfejsu
+               Uwaga:
+                   Funkcja automatycznie wywołuje setup_gui() i load_models() 
+                   na końcu inicjalizacji.
+        """
         self.master = master
         self.master.title("veteye.AI - System predykcji ciąży klaczy na podstawie diagnostyki obrazowej USG")
 
@@ -88,15 +120,37 @@ class AnalysisGUI:
         self.load_models()
         
     def get_latest_model_path():
+        """
+        Wyszukuje i zwraca ścieżkę do najnowszej wersji modelu wykrywania ciąży.
+       
+        Funkcja przeszukuje katalog 'checkpoints' w poszukiwaniu plików modeli
+        z wzorcem nazwy 'USGEquina-Pregna_v*.keras', gdzie * oznacza numer wersji.
+        Wykorzystuje sortowanie alfabetyczne do określenia najnowszej wersji.
+        Zwraca:
+           str: Ścieżka do najnowszego pliku modelu lub None jeśli nie znaleziono żadnego
+        Przykład:
+           Dla plików: USGEquina-Pregna_v1.keras, USGEquina-Pregna_v2.keras
+           Zwróci: "checkpoints/USGEquina-Pregna_v2.keras"
+        """
         files = glob.glob("checkpoints/USGEquina-Pregna_v*.keras")
         if not files:
             return None
         return sorted(files)[-1]  # zakładamy, że sortowanie alfabetyczne odpowiada wersjom
 
-        # i później:
         self.model_path = get_latest_model_path()
 
     def center_window(self, window, width=600, height=400):
+        """
+         Wyśrodkowuje okno na ekranie użytkownika.
+         Oblicza pozycję okna tak, aby było dokładnie na środku ekranu
+         na podstawie rozdzielczości monitora i zadanych wymiarów okna.
+         Parametry:
+             window: Okno do wyśrodkowania (obiekt Tkinter)
+             width (int): Szerokość okna w pikselach (domyślnie 600)
+             height (int): Wysokość okna w pikselach (domyślnie 400)
+         Przykład:
+             center_window(dialog_window, 800, 600)  # Wyśrodkuje okno 800x600
+         """
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
         x = int((screen_width / 2) - (width / 2))
@@ -104,7 +158,25 @@ class AnalysisGUI:
         window.geometry(f"{width}x{height}+{x}+{y}")
 
     def show_feature_legend(self):
-        """Okno z wyjaśnieniem cech obrazu"""
+        """Okno z wyjaśnieniem cech obrazu
+        Wyświetla okno z legendą wyjaśniającą cechy analizowanych obrazów USG.
+        Tworzy okno podręczne zawierające szczegółowe wyjaśnienia wszystkich 
+        parametrów technicznych używanych do oceny jakości i zawartości obrazów 
+        ultrasonograficznych. Okno zawiera przewijany tekst z opisami typowych 
+        zakresów wartości i ich interpretacją diagnostyczną.
+        Wyjaśniane cechy obrazu:
+        - mean_intensity: średnia jasność pikseli
+        - std_intensity: odchylenie standardowe jasności  
+        - contrast: stosunek kontrastu do jasności
+        - entropy: złożoność tekstury obrazu
+        - edge_magnitude: siła wykrywanych krawędzi
+        - potential_fluid_ratio: stosunek jasnych obszarów (płyny)
+        - potential_tissue_ratio: stosunek ciemnych obszarów (tkanki)
+        Interfejs:
+        - Rozmiar okna: 600x400 pikseli
+        - Przewijany tekst z wyłączoną edycją
+        - Automatyczne wyśrodkowanie na ekranie
+        """
         legend_window = tk.Toplevel(self.master)
         legend_window.title("Legenda cech obrazu")
         legend_window.geometry("600x400")
@@ -139,6 +211,43 @@ class AnalysisGUI:
 
 
     def setup_gui(self):
+        """
+        Tworzy i konfiguruje główny interfejs graficzny aplikacji veteye.AI.
+        Buduje kompletny układ okna z trzema głównymi sekcjami:
+        - Górny panel z danymi klaczy, wykresem cech i podglądem obrazu USG
+        - Środkowy panel z obszarem tekstowym do wyników diagnostycznych
+        - Dolny panel z przyciskami sterowania i paskiem stanu
+        Składniki interfejsu:
+        Sekcja danych klaczy:
+        - Pola do wprowadzenia imienia, wieku i szacowanego dnia cyklu
+        - Zmienne tekstowe: klacz_name, klacz_age, estimated_day
+        Sekcja analizy obrazu:
+        - Ramka na wykres cech obrazu (wypełniana przez plot_features)
+        - Obszar wyświetlania załadowanego obrazu USG
+        Sekcja wyników:
+        - Przewijane pole tekstowe do opisu diagnostycznego
+        - Pasek przewijania pionowego
+        Przyciski sterowania:
+        - "Wczytaj obraz": ładowanie pliku obrazu USG
+        - "Analizuj": uruchomienie analizy załadowanego obrazu
+        - "Legenda cech": wyświetlenie okna z wyjaśnieniami parametrów
+        - "Zapisz raport": eksport wyników do pliku
+        - "Zakończ": zamknięcie aplikacji z potwierdzeniem
+        Pasek stanu:
+        - Etykieta statusu operacji
+        - Pasek postępu dla długotrwałych operacji
+        - Nazwa aktualnie używanego modelu
+        - Informacja o autorach systemu
+        Stylizacja:
+        - Niestandardowe style ttk dla przycisków i ramek
+        - Schemat kolorów: granatowy tekst na jasnym tle
+        - Czcionka: Segoe UI, rozmiar 10pt
+        - Rozmiar okna: 1200x800 (minimum 1000x700)
+        Inicjalizacja:
+        - current_image_path: ścieżka do aktualnego obrazu (None)
+        - analysis_result: wyniki ostatniej analizy (None)
+        - Większość przycisków początkowo wyłączona do czasu załadowania obrazu
+        """    
         style = ttk.Style()
         self.master.title("veteye.AI - System diagnostyki USG klaczy - demonstrator (wersja: 1.01.001)")
         self.master.geometry("1200x800")
@@ -260,67 +369,29 @@ class AnalysisGUI:
         # === INICJALIZACJA STANU ===
         self.current_image_path = None
         self.analysis_result = None
-
-
-
-    """
-    def setup_gui(self):
-        main_frame = ttk.Frame(self.master)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        top_frame = ttk.Frame(main_frame)
-        top_frame.pack(fill=tk.X)
-
-        self.load_image_button = ttk.Button(top_frame, text="Wczytaj obraz", command=self.load_image)
-        self.load_image_button.pack(side=tk.LEFT, padx=5)
-
-        self.analyze_button = ttk.Button(top_frame, text="Analizuj", command=self.analyze_current_image, state=tk.DISABLED)
-        self.analyze_button.pack(side=tk.LEFT, padx=5)
-
-        self.save_report_button = ttk.Button(top_frame, text="Zapisz raport", command=self.generate_report, state=tk.DISABLED)
-        self.save_report_button.pack(side=tk.LEFT, padx=5)
-
-        content_frame = ttk.Frame(main_frame)
-        content_frame.pack(fill=tk.BOTH, expand=True)
-
-        left_panel = ttk.Frame(content_frame)
-        left_panel.pack(side=tk.LEFT, fill=tk.Y, padx=5)
-
-        ttk.Label(left_panel, text="Imię klaczy:").pack()
-        self.klacz_name = tk.StringVar()
-        ttk.Entry(left_panel, textvariable=self.klacz_name).pack()
-
-        ttk.Label(left_panel, text="Wiek klaczy:").pack()
-        self.klacz_age = tk.StringVar()
-        ttk.Entry(left_panel, textvariable=self.klacz_age).pack()
-
-        ttk.Label(left_panel, text="Szacowany dzień:").pack()
-        self.estimated_day = tk.StringVar()
-        ttk.Entry(left_panel, textvariable=self.estimated_day).pack()
-
-        self.status_label = ttk.Label(main_frame, text="Gotowy")
-        self.status_label.pack(fill=tk.X)
-
-        self.progress = ttk.Progressbar(main_frame, orient="horizontal", length=200, mode="determinate")
-        self.progress.pack(fill=tk.X)
-
-        image_frame = ttk.Frame(content_frame)
-        image_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
-
-        self.image_label = ttk.Label(image_frame, text="Obraz", background="gray")
-        self.image_label.pack(fill=tk.BOTH, expand=True)
-
-        right_frame = ttk.Frame(content_frame)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-
-        self.result_text = tk.Text(right_frame, wrap=tk.WORD)
-        self.result_text.pack(fill=tk.BOTH, expand=True)
-
-        self.current_image_path = None
-        self.analysis_result = None
-    """
     
     def load_models(self):
+        """
+         Ładuje modele sztucznej inteligencji w osobnym wątku w tle.
+         Uruchamia asynchroniczne ładowanie dwóch głównych modeli systemu:
+         - Model wykrywania ciąży (pregnancy_model)
+         - Model szacowania dni ciąży (day_model) wraz z mapowaniem wartości
+         Proces ładowania:
+         - Wykonywane w osobnym wątku aby nie blokować interfejsu użytkownika
+         - Wątek oznaczony jako daemon (kończy się z głównym programem)
+         - Używa funkcji z modułu prediction do załadowania modeli
+         Ładowane składniki:
+         - self.pregnancy_model: model do wykrywania obecności ciąży
+         - self.day_model: model do określania wieku ciąży w dniach  
+         - self.day_mapping: słownik mapowania wyników modelu na dni
+         Parametry ładowania:
+         - Używa self.model_path jako ścieżkę do modelu ciąży
+         - Przekazuje self.log_file do rejestrowania zdarzeń
+         - Modele ładowane z domyślnych lokalizacji lub podanych ścieżek
+         Uwaga:
+         - Funkcja nie blokuje interfejsu podczas ładowania
+         - Modele dostępne dopiero po zakończeniu wątku w tle
+        """    
         def thread_load():
             from prediction import load_pregnancy_model, load_day_estimation_model
             self.pregnancy_model = load_pregnancy_model(self.model_path, self.log_file)
@@ -331,7 +402,36 @@ class AnalysisGUI:
  
 
     def plot_features(self, features_dict):
-        """Rysuje wykres słupkowy cech obrazu w ramce GUI"""
+        """
+        Tworzy i wyświetla wykres słupkowy cech analizowanego obrazu USG.
+        Generuje poziomy wykres słupkowy przedstawiający sześć głównych 
+        parametrów jakości i zawartości obrazu ultrasonograficznego.
+        Wykres jest umieszczany bezpośrednio w ramce interfejsu graficznego.
+        Parametry:
+          features_dict (słownik): Zawiera wartości liczbowe cech obrazu
+        Wyświetlane cechy obrazu:
+        - Średnia intensywność: ogólna jasność obrazu
+        - Kontrast: różnica między jasnymi i ciemnymi obszarami
+        - Entropia: złożoność tekstury i szczegółowość
+        - Krawędzie: siła wykrywanych granic struktur
+        - Płyn (stosunek): proporcja jasnych obszarów
+        - Tkanka (stosunek): proporcja ciemnych obszarów
+        Właściwości wykresu:
+        - Typ: poziomy wykres słupkowy (barh)
+        - Kolor słupków: zielony morski z jasnozieloną ramką
+        - Rozmiar: 5x3 cale, 100 DPI
+        - Siatka: pionowe linie przerywane dla ułatwienia odczytu
+        - Etykiety: wartości liczbowe wyświetlane przy końcu słupków
+        Proces tworzenia:
+        1. Usunięcie poprzednich wykresów z ramki
+        2. Przygotowanie polskich nazw cech i wartości
+        3. Utworzenie wykresu matplotlib
+        4. Stylizacja i formatowanie
+        5. Umieszczenie w interfejsie za pomocą FigureCanvasTkAgg
+        Uwaga:
+        - Wykres automatycznie dopasowuje skalę do największej wartości
+        - Brakujące cechy w słowniku są zastępowane wartością 0
+        """   
         # Usuń stare wykresy z ramki
         for widget in self.features_frame.winfo_children():
             widget.destroy()
@@ -373,36 +473,39 @@ class AnalysisGUI:
         canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
 
-    """
-    def plot_features(self, feature_dict):
-        import matplotlib.pyplot as plt
-        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-        for widget in self.features_frame.winfo_children():
-            widget.destroy()
-
-        labels = ["Intens.", "Kontrast", "Entropia", "Płyn", "Tkanka"]
-        values = [
-            feature_dict.get("mean_intensity", 0),
-            feature_dict.get("contrast", 0),
-            feature_dict.get("entropy", 0),
-            feature_dict.get("potential_fluid_ratio", 0),
-            feature_dict.get("potential_tissue_ratio", 0),
-        ]
-
-        fig = plt.Figure(figsize=(4.5, 2.5), dpi=100)
-        ax = fig.add_subplot(111)
-        ax.bar(labels, values, color='skyblue')
-        ax.set_ylim(0, 1)
-        ax.set_title("Cechy obrazu")
-
-        canvas = FigureCanvasTkAgg(fig, master=self.features_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-    """
-
     def load_image(self):
-        """Wczytuje obraz USG i przygotowuje do analizy."""
+        """
+        Wczytuje obraz USG z dysku i przygotowuje go do wyświetlenia oraz analizy.
+        Otwiera okno dialogowe do wyboru pliku obrazu, następnie wczytuje 
+        i przygotowuje obraz do wyświetlenia w interfejsie graficznym.
+        Po pomyślnym wczytaniu aktywuje przyciski analizy.
+        Obsługiwane formaty obrazów:
+        - JPG/JPEG: standardowe formaty fotograficzne
+        - PNG: format bezstratny z przezroczystością
+        - BMP: format Windows Bitmap
+        - TIF/TIFF: format wysokiej jakości
+        Proces wczytywania:
+        1. Wyświetlenie okna dialogowego wyboru pliku
+        2. Sprawdzenie czy użytkownik wybrał plik
+        3. Otwarcie obrazu za pomocą biblioteki PIL
+        4. Zmniejszenie rozmiaru do 600x400 pikseli (zachowanie proporcji)
+        5. Konwersja do formatu Tkinter (PhotoImage)
+        6. Wyświetlenie w etykiecie obrazu
+        7. Aktywacja przycisku "Analizuj"
+        8. Wyczyszczenie poprzednich wyników
+        Aktualizacje interfejsu:
+        - Wyświetlenie podglądu obrazu w odpowiedniej ramce
+        - Włączenie przycisku analizy
+        - Wyczyszczenie pola tekstowego wyników
+        - Aktualizacja paska stanu z nazwą pliku
+        Obsługa błędów:
+        - Wyświetlenie komunikatu o błędzie przy niepowodzeniu
+        - Aktualizacja paska stanu informacją o błędzie
+        - Zachowanie stabilności aplikacji
+        Zmienne aktualizowane:
+        - current_image_path: ścieżka do wczytanego pliku
+        - image_label.image: referencja do wyświetlanego obrazu
+        """
         file_path = filedialog.askopenfilename(
             title="Wybierz obraz USG",
             filetypes=[("Obrazy", "*.jpg *.jpeg *.png *.bmp *.tif *.tiff"), ("Wszystkie pliki", "*.*")]
@@ -433,6 +536,17 @@ class AnalysisGUI:
 
 
     def analyze_current_image(self):
+        """
+        Analizuje aktualnie wczytany obraz USG w celu wykrycia ciąży u klaczy.
+        Metoda wykonuje następujące kroki:
+        - Sprawdza czy obraz jest wczytany i czy dane klaczy są kompletne
+        - Przygotowuje obraz do analizy (zmiana rozmiaru, normalizacja)
+        - Wykonuje predykcję za pomocą modelu sztucznej inteligencji
+        - Analizuje cechy obrazu i generuje szczegółowy opis wyniku
+        - Wyświetla rezultat w interfejsie użytkownika wraz z wizualizacją
+        - Aktywuje przyciski do zapisu raportu i wyświetlenia legendy
+        Obsługuje błędy i wyświetla odpowiednie komunikaty w przypadku problemów.
+        """    
         if not self.current_image_path:
             messagebox.showwarning("Brak obrazu", "Wczytaj obraz USG przed analizą.")
             return
@@ -511,6 +625,17 @@ class AnalysisGUI:
 
 
     def generate_report(self):
+        """
+        Generuje raport PDF z wynikami analizy obrazu USG.
+        Metoda wykonuje następujące operacje:
+        - Sprawdza czy wyniki analizy są dostępne
+        - Przekazuje dane analizy do funkcji tworzenia raportu PDF
+        - Weryfikuje czy plik raportu został poprawnie utworzony
+        - Wyświetla komunikat o sukcesie z lokalizacją zapisanego pliku
+        - Aktualizuje status aplikacji o powodzeniu operacji
+        W przypadku błędów zapisuje informacje do dziennika i wyświetla
+        odpowiedni komunikat użytkownikowi.
+        """    
         if not self.analysis_result:
             messagebox.showwarning("Brak danych", "Najpierw przeprowadź analizę obrazu.")
             return
@@ -539,7 +664,19 @@ class AnalysisGUI:
             self.update_status("Błąd podczas generowania raportu", error=True)
     
     def update_status(self, message, loading=False, error=False):
-        """Aktualizuje pasek statusu"""
+        """
+        Aktualizuje pasek statusu aplikacji z informacją o aktualnym stanie operacji.
+        
+        Parametry:
+        - message: tekst komunikatu do wyświetlenia
+        - loading: czy pokazać animację ładowania (domyślnie False)
+        - error: czy komunikat dotyczy błędu (domyślnie False)
+        
+        Funkcjonalność:
+        - Ustawia tekst statusu z odpowiednim kolorem (czerwony dla błędów, biały normalnie)
+        - Kontroluje pasek postępu - uruchamia animację podczas ładowania
+        - Zatrzymuje animację i ustawia wartość paska (0% dla błędów, 100% dla sukcesu)
+        """
         self.status_label.config(text=message, foreground="red" if error else "white")
     
         if loading:
