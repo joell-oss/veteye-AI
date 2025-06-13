@@ -176,7 +176,7 @@ System generuje raporty PDF z wynikami analizy, które zawierają:
 
 ## Licencja
 
-Ten projekt jest dostępny na licencji MIT. Szczegóły w pliku LICENSE.
+Ten projekt jest dostępny na licencji: Proprietary / Internal Evaluation Use Only. Szczegóły w pliku LICENSE.
 
 ## Autorzy
 KOZMINSKI EXECUTIVE BUSINESS SCHOOL
