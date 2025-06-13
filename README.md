@@ -68,6 +68,7 @@ pip install -r requirements.txt
 ## Struktura katalogów
 
 Aby poprawnie korzystać z systemu, należy utworzyć następującą strukturę katalogów:
+```
 USG-Mares-Pregnancy-Dataset/
 ├── Training/              # Dane treningowe
 │   ├── pregnant/          # Obrazy USG ciąży
@@ -75,14 +76,15 @@ USG-Mares-Pregnancy-Dataset/
 └── Test/                  # Dane testowe
 ├── pregnant/          # Obrazy USG ciąży do testu
 └── not_pregnant/      # Obrazy USG bez ciąży do testu
-
+```
 Dla modelu szacowania dnia ciąży:
+```text
 USG-Mares-Pregnancy-Days/
 ├── 20/                   # Obrazy USG dla ciąży 20-dniowej
 ├── 30/                   # Obrazy USG dla ciąży 30-dniowej
 ├── 45/                   # Obrazy USG dla ciąży 45-dniowej
 └── ...                   # Inne dni ciąży
-
+```
 ### Przygotowanie danych
 
 Aby przygotować dane z istniejącego katalogu obrazów:
