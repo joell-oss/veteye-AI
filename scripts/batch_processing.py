@@ -13,7 +13,19 @@ from prediction import batch_process_images, load_pregnancy_model, load_day_esti
 from report_generator import create_batch_report
 
 def parse_arguments():
-    """Parsuje argumenty wiersza poleceń"""
+    """
+    Przetwarza argumenty przekazane z wiersza poleceń dla aplikacji wsadowej.
+    Dostępne parametry:
+    --input (-i): Katalog źródłowy zawierający obrazy USG do przeanalizowania (wymagany)
+    --output (-o): Katalog docelowy dla wyników (opcjonalny, domyślnie w folderze raportów)
+    --model (-m): Ścieżka do pliku modelu uczenia maszynowego (opcjonalny)
+    --report (-r): Flaga włączająca tworzenie zbiorczego raportu PDF
+    --force (-f): Flaga pozwalająca na nadpisanie istniejących plików wyników
+    Zwraca:
+    Obiekt zawierający wszystkie przetworzone argumenty gotowe do użycia
+    w głównej logice aplikacji.
+    Umożliwia elastyczne uruchamianie analizy z terminala z różnymi opcjami.
+    """
     parser = argparse.ArgumentParser(description="Przetwarzanie wsadowe obrazów USG klaczy")
     parser.add_argument("--input", "-i", required=True, help="Katalog z obrazami USG do analizy")
     parser.add_argument("--output", "-o", help="Katalog wynikowy (domyślnie utworzony w katalogu raportów)")
@@ -24,7 +36,21 @@ def parse_arguments():
     return parser.parse_args()
 
 def main():
-    """Główna funkcja przetwarzania wsadowego"""
+    """
+    Główna funkcja sterująca procesem wsadowego przetwarzania obrazów USG klaczy.
+    Proces wykonania:
+    1. Przetwarza argumenty z wiersza poleceń
+    2. Konfiguruje system logowania dla śledzenia operacji
+    3. Sprawdza poprawność katalogów wejściowego i wyjściowego
+    4. Przygotowuje katalog wyników z unikalną nazwą czasową
+    5. Ładuje model uczenia maszynowego do wykrywania ciąży
+    6. Wykonuje analizę wszystkich obrazów z katalogu źródłowego
+    7. Opcjonalnie generuje zbiorczy raport PDF z wynikami
+    Funkcja obsługuje błędy na każdym etapie i zapisuje szczegółowe logi.
+    Zwraca kod wyjścia: 0 dla sukcesu, 1 dla błędu.
+    Umożliwia automatyczne przetwarzanie dużych zbiorów obrazów USG
+    bez konieczności używania interfejsu graficznego.
+    """
     # Parsuj argumenty
     args = parse_arguments()
     
@@ -92,5 +118,18 @@ def main():
         return 1
 
 if __name__ == "__main__":
+    """
+    Punkt wejścia skryptu - wykonuje się tylko przy bezpośrednim uruchomieniu pliku.
+    
+    Uruchamia główną funkcję main() i kończy program z odpowiednim kodem wyjścia:
+    - Kod 0: program zakończony pomyślnie
+    - Kod 1: wystąpił błąd podczas wykonywania
+    
+    Pozwala na bezpieczne importowanie tego modułu w innych skryptach
+    bez automatycznego uruchamiania przetwarzania wsadowego.
+    
+    Kod wyjścia może być wykorzystany przez skrypty nadrzędne lub systemy
+    automatyzacji do sprawdzenia czy operacja zakończyła się sukcesem.
+    """
     exit_code = main()
     exit(exit_code)
