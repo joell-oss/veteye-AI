@@ -12,7 +12,24 @@ from logging_utils import log_info, log_error, log_section
 from config import IMAGE_SIZE, BATCH_SIZE
 
 def load_data(train_dir, test_dir, image_size=IMAGE_SIZE, batch_size=BATCH_SIZE, log_file=None):
-    """Ładuje i przygotowuje dane treningowe i testowe z podanych katalogów"""
+    """
+    Ładuje i przygotowuje dane obrazowe do treningu modelu wykrywania ciąży u klaczy.
+    Funkcjonalność:
+    - Tworzy generatory danych z preprocessing dla modelu Inception V3
+    - Stosuje augmentację danych treningowych (obroty, przesunięcia, odbicia, jasność)
+    - Przygotowuje dane testowe bez augmentacji dla obiektywnej oceny
+    - Konfiguruje klasyfikację binarną (ciąża/brak ciąży)
+    - Oblicza liczbę kroków na epokę i walidację
+    Parametry:
+    - train_dir: katalog z obrazami treningowymi
+    - test_dir: katalog z obrazami testowymi  
+    - image_size: docelowy rozmiar obrazów
+    - batch_size: wielkość partii danych
+    - log_file: plik do zapisu logów
+    Zwraca:
+    Generatory danych oraz parametry treningu (kroki na epokę, kroki walidacji).
+    Automatycznie rozpoznaje strukturę katalogów i klasy obrazów.
+    """
     
     log_section("Ładowanie danych", log_file)
     
@@ -73,8 +90,22 @@ def load_data(train_dir, test_dir, image_size=IMAGE_SIZE, batch_size=BATCH_SIZE,
 
 def create_day_estimation_dataset(data_dir, image_size=IMAGE_SIZE, batch_size=BATCH_SIZE, log_file=None):
     """
-    Tworzy zestaw danych do oszacowania dnia ciąży na podstawie struktury katalogów
-    z podkatalogami nazwanymi według dni ciąży
+    Tworzy zestaw danych do treningu modelu szacującego dzień ciąży u klaczy.
+    Funkcjonalność:
+    - Ładuje obrazy z katalogów nazwanych według dni ciąży (np. "30", "45", "120")
+    - Przygotowuje dane z łagodną augmentacją dostosowaną do analizy rozwoju płodu
+    - Automatycznie dzieli dane na zbiór treningowy (80%) i walidacyjny (20%)
+    - Tworzy mapowanie między indeksami klas a rzeczywistymi dniami ciąży
+    - Konfiguruje klasyfikację wieloklasową (jeden dzień = jedna klasa)
+    Parametry:
+    - data_dir: katalog główny zawierający podkatalogi z dniami ciąży
+    - image_size: docelowy rozmiar obrazów
+    - batch_size: wielkość partii danych
+    - log_file: plik do zapisu logów
+    Zwraca:
+    Generatory danych treningowych i walidacyjnych oraz mapowanie dni ciąży.
+    Umożliwia trenowanie modelu do precyzyjnego określania zaawansowania ciąży
+    - nie uwzględnione w demonstratorze.
     """
     try:
         log_section("Tworzenie zestawu danych do szacowania dni ciąży", log_file)
@@ -133,7 +164,22 @@ def create_day_estimation_dataset(data_dir, image_size=IMAGE_SIZE, batch_size=BA
         raise
 
 def load_and_preprocess_image(image_path, image_size=IMAGE_SIZE):
-    """Ładuje i przetwarza pojedynczy obraz do analizy"""
+    """
+    Ładuje i przetwarza pojedynczy obraz USG do analizy przez model uczenia maszynowego.
+    Proces przetwarzania:
+    - Wczytuje obraz z pliku i zmienia jego rozmiar do wymaganych wymiarów
+    - Konwertuje obraz na tablicę numeryczną z wartościami pikseli
+    - Stosuje preprocessing specyficzny dla modelu Inception V3 (normalizacja)
+    - Dodaje wymiar partii (batch dimension) wymagany przez model
+    Parametry:
+    - image_path: ścieżka do pliku obrazu
+    - image_size: docelowy rozmiar obrazu (szerokość, wysokość)
+    Zwraca:
+    - img_expanded: obraz gotowy do predykcji (z wymiarem partii)
+    - img_array: obraz przetworzony bez wymiaru partii (do wizualizacji)
+    Obsługuje błędy ładowania i zwraca None w przypadku problemów.
+    Zapewnia kompatybilność z wymaganiami modelu głębokiego uczenia.
+    """
     try:
         # Załadowanie obrazu
         img = tf.keras.preprocessing.image.load_img(image_path, target_size=image_size)
