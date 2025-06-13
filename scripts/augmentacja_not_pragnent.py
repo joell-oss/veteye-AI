@@ -7,7 +7,21 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_arra
 import numpy as np
 import os
 import cv2
-
+"""
+Skrypt do powiększania zbioru danych obrazów USG metodą augmentacji.
+Cel: Zwiększenie liczby obrazów treningowych w kategorii "not_pregnant" 
+poprzez tworzenie zmodyfikowanych wersji istniejących zdjęć.
+Proces augmentacji:
+- Obrót obrazów do 15 stopni
+- Powiększenie/pomniejszenie do 10%  
+- Zmiana jasności w zakresie 90-110%
+- Odbicie lustrzane w poziomie
+- Wypełnianie pustych miejsc metodą najbliższego sąsiada
+Dla każdego obrazu w folderze źródłowym tworzy 3 dodatkowe wersje
+z losowymi transformacjami, zapisując je z prefiksem "aug1_".
+Używane do wyrównania proporcji w zbiorze danych treningowych
+modelu rozpoznawania ciąży u klaczy.
+"""
 source_folder = "USG-Mares-Pregnancy-Dataset/Training/not_pregnant"
 output_folder = source_folder
 os.makedirs(output_folder, exist_ok=True)
@@ -29,7 +43,7 @@ for file in os.listdir(source_folder):
     x = img_to_array(img)
     x = np.expand_dims(x, axis=0)
 
-    # ile augmentowanych kopii chcesz stworzyć z każdego zdjęcia
+    # liczba kopii z każdego zdjęcia
     N = 3
 
     gen = datagen.flow(x, batch_size=1)
@@ -39,5 +53,5 @@ for file in os.listdir(source_folder):
         out_path = os.path.join(output_folder, out_name)
         cv2.imwrite(out_path, aug_img)
 
-print("✅ Augmentacja zakończona.")
+print("Augmentacja zakończona.")
 
