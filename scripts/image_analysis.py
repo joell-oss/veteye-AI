@@ -16,7 +16,17 @@ from config import FEATURE_EXTRACTION_PARAMS
 
 def analyze_image_features(image_path, image_size):
     """
-    Analizuje cechy obrazu USG, które mogą być przydatne do opisu diagnostycznego.
+    Analizuje właściwości obrazu ultrasonograficznego pod kątem cech diagnostycznych.
+    Funkcja przetwarza obraz USG i wyodrębnia kluczowe parametry statystyczne
+    i morfologiczne, które mogą wspomóc interpretację medyczną. Oblicza wskaźniki
+    intensywności, kontrastu, entropii oraz szacuje proporcje obszarów
+    odpowiadających potencjalnie płynom i tkankom.
+    Argumenty:
+        image_path: Ścieżka do pliku obrazu USG
+        image_size: Rozmiar docelowy obrazu (krotka szerokość, wysokość)
+    Zwraca:
+        Słownik zawierający obliczone cechy obrazu lub wartości domyślne
+        w przypadku błędu przetwarzania
     """
     try:
         # Wczytanie obrazu w skali szarości
@@ -64,7 +74,19 @@ def analyze_image_features(image_path, image_size):
         }
 
 def load_and_preprocess_image_for_analysis(image_path, target_size=(380, 380)):
-    """Ładuje i przetwarza obraz USG do analizy cech"""
+    """
+    Wczytuje i przygotowuje obraz ultrasonograficzny do dalszej analizy.
+    Funkcja wykonuje podstawowe operacje przetwarzania obrazu: wczytanie
+    w skali szarości, zmianę wymiarów do zadanego rozmiaru oraz normalizację
+    wartości pikseli. Przygotowuje dane w formacie odpowiednim do analizy
+    cech diagnostycznych.
+    Argumenty:
+       image_path: Ścieżka do pliku obrazu USG
+       target_size: Docelowe wymiary obrazu (szerokość, wysokość)
+    Zwraca:
+       Krotka zawierająca znormalizowany obraz i obraz o zmienionym rozmiarze,
+       lub (None, None) w przypadku błędu
+    """
     try:
         # Załadowanie obrazu w skali szarości
         img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -85,7 +107,21 @@ def load_and_preprocess_image_for_analysis(image_path, target_size=(380, 380)):
         return None, None
 
 def extract_image_features(image_array, params=FEATURE_EXTRACTION_PARAMS):
-    """Ekstrahuje cechy obrazu USG istotne dla określenia ciąży i dnia ciąży"""
+    """
+    Wyodrębnia wieloaspektowe cechy obrazu USG dla oceny ciąży i szacowania wieku płodu.
+    Funkcja wykonuje kompleksową analizę obrazu ultrasonograficznego, obliczając
+    różnorodne wskaźniki: podstawowe parametry intensywności, właściwości tekstury,
+    charakterystyki krawędzi oraz identyfikację struktur anatomicznych. Dodatkowo
+    przeprowadza analizę regionalną obrazu i oblicza macierz współwystępowania
+    poziomów szarości (GLCM) dla oceny tekstury tkanek.
+    Argumenty:
+       image_array: Tablica numpy zawierająca obraz USG w skali szarości
+       params: Słownik parametrów konfiguracyjnych dla ekstrakcji cech
+    Zwraca:
+       Krotka zawierająca szczegółowy słownik cech pogrupowanych tematycznie
+       oraz uproszczony słownik cech dla algorytmów uczenia maszynowego,
+       lub (None, None) w przypadku błędu
+    """
     
     try:
         # Parametry analizy
@@ -202,7 +238,20 @@ def extract_image_features(image_array, params=FEATURE_EXTRACTION_PARAMS):
         return None, None
 
 def visualize_image_analysis(image_array, features, output_path=None):
-    """Tworzy wizualizację analizy obrazu z podświetlonymi obszarami"""
+    """
+    Tworzy wizualną prezentację wyników analizy obrazu USG z kolorowym kodowaniem struktur.
+    Funkcja generuje obraz diagnostyczny nakładając kolorowe maski na różne struktury
+    anatomiczne wykryte podczas analizy. Krawędzie oznaczane są kolorem czerwonym,
+    obszary płynowe niebieskim, a tkanki zielonym. Dodatkowo dodawane są informacje
+    tekstowe z kluczowymi parametrami obliczonymi podczas analizy cech.
+    Argumenty:
+       image_array: Tablica numpy z obrazem USG w skali szarości
+       features: Słownik cech obrazu otrzymany z funkcji analizy
+       output_path: Opcjonalna ścieżka do zapisania wizualizacji
+   
+    Zwraca:
+       Obraz z nałożonymi maskami i opisami lub None w przypadku błędu
+    """
     
     try:
         # Przekształć na obraz kolorowy
