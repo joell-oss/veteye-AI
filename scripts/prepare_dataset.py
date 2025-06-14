@@ -14,7 +14,24 @@ from logging_utils import setup_logging, log_info, log_error, log_success, log_s
 from config import DATA_DIR, TRAIN_DIR, TEST_DIR
 
 def parse_arguments():
-    """Parsuje argumenty wiersza poleceń"""
+    """
+    Konfiguruje parametry wiersza poleceń dla przygotowania zestawu danych USG.
+    Definiuje interfejs CLI z następującymi opcjami:
+    - source (-s): wymagany katalog źródłowy z obrazami USG do przetworzenia
+    - dest (-d): katalog docelowy (domyślnie DATA_DIR)
+    - split (-p): współczynnik podziału na dane testowe (0.0-1.0, domyślnie 20%)
+    - structure (-t): typ organizacji danych ('binary' lub 'days')
+    - augment (-a): flaga włączająca augmentację danych (opcjonalna)
+    Typy struktur danych:
+    - 'binary': organizacja ciąża/brak_ciąży (klasyfikacja binarna)
+    - 'days': organizacja według dni ciąży (regresja/klasyfikacja wieloklasowa)
+    Parametry walidacji:
+    - source: obowiązkowy parametr wejściowy
+    - split: wartość zmiennoprzecinkowa w zakresie 0.0-1.0
+    - structure: ograniczone wybory dla bezpieczeństwa typów
+    Umożliwia elastyczną konfigurację procesu przygotowania danych
+    bez konieczności modyfikacji kodu źródłowego.
+    """
     parser = argparse.ArgumentParser(description="Przygotowanie zestawu danych USG klaczy")
     parser.add_argument("--source", "-s", required=True, help="Katalog źródłowy z obrazami USG")
     parser.add_argument("--dest", "-d", default=DATA_DIR, help="Katalog docelowy na zestaw danych")
@@ -26,7 +43,23 @@ def parse_arguments():
     return parser.parse_args()
 
 def create_directory_structure(dest_dir, structure="binary"):
-    """Tworzy strukturę katalogów dla zestawu danych"""
+    """
+    Tworzy hierarchiczną strukturę katalogów dostosowaną do typu zadania uczenia maszynowego.
+    Implementuje dwa wzorce organizacji danych:
+    Struktura 'binary' (klasyfikacja binarna):
+    - Training/pregnant - obrazy z ciążą do treningu
+    - Training/not_pregnant - obrazy bez ciąży do treningu  
+    - Test/pregnant - obrazy z ciążą do testów
+    - Test/not_pregnant - obrazy bez ciąży do testów
+    Struktura 'days' (regresja/klasyfikacja wieloklasowa):
+    - Training/ - wszystkie obrazy treningowe (etykiety w metadanych)
+    - Test/ - wszystkie obrazy testowe (etykiety w metadanych)
+    Zastosowanie:
+    - 'binary': kompatybilne z ImageDataGenerator.flow_from_directory()
+    - 'days': wymaga custom data loader z parsowaniem etykiet z nazw plików
+    Automatyczne tworzenie katalogów z exist_ok=True zapewnia 
+    bezpieczne wykonanie bez błędów przy istniejących strukturach.
+    """
     if structure == "binary":
         # Struktura dla klasyfikacji binarnej (ciąża/brak ciąży)
         os.makedirs(os.path.join(dest_dir, "Training", "pregnant"), exist_ok=True)
@@ -39,7 +72,24 @@ def create_directory_structure(dest_dir, structure="binary"):
         os.makedirs(os.path.join(dest_dir, "Test"), exist_ok=True)
 
 def process_binary_dataset(source_dir, dest_dir, test_split=0.2, apply_augmentation=False, log_file=None):
-    """Przetwarza dane do klasyfikacji binarnej (ciąża/brak ciąży)"""
+    """
+    Przetwarza zestaw danych obrazowych do klasyfikacji dwuwartościowej (ciąża/brak ciąży).
+    Funkcja wczytuje obrazy z katalogów źródłowych, dzieli je na zbiory treningowe 
+    i testowe w zadanej proporcji, kopiuje do struktury katalogów docelowych 
+    oraz opcjonalnie wykonuje wzbogacanie danych treningowych w celu zwiększenia 
+    liczebności zbioru.
+    Parametry:
+       katalog_źródłowy (str): Ścieżka do katalogu źródłowego zawierającego podkatalogi 
+                              'pregnant' i 'not_pregnant' z obrazami
+       katalog_docelowy (str): Ścieżka do katalogu docelowego dla struktury Training/Test
+       podział_testowy (float): Proporcja danych przeznaczonych na zbiór testowy (domyślnie 0.2)
+       zastosuj_wzbogacanie (bool): Czy zastosować wzbogacanie danych treningowych
+       plik_logów (str, opcjonalny): Ścieżka do pliku dziennika zdarzeń
+    Zwraca:
+       bool: Prawda jeśli przetwarzanie zakończyło się pomyślnie, Fałsz w przypadku błędu
+    Wyjątki:
+       Zapisuje błędy do pliku dziennika jeśli katalogi źródłowe nie istnieją
+    """   
     log_section("Przetwarzanie zestawu danych binarnych", log_file)
     
     # Ścieżki katalogów
@@ -109,7 +159,25 @@ def process_binary_dataset(source_dir, dest_dir, test_split=0.2, apply_augmentat
     return True
 
 def process_day_dataset(source_dir, dest_dir, test_split=0.2, apply_augmentation=False, log_file=None):
-    """Przetwarza dane do klasyfikacji dni ciąży"""
+    """
+    Przetwarza zestaw danych obrazowych do klasyfikacji wieloklasowej dni ciąży.
+    Funkcja wczytuje obrazy z katalogów numerowanych odpowiadających poszczególnym 
+    dniom ciąży, dzieli je na zbiory treningowe i testowe w zadanej proporcji, 
+    kopiuje do struktury katalogów docelowych oraz opcjonalnie wykonuje wzbogacanie 
+    danych treningowych dla każdej klasy osobno.
+    Parametry:
+       katalog_źródłowy (str): Ścieżka do katalogu źródłowego zawierającego podkatalogi 
+                              numerowane (np. "1", "2", "30") z obrazami dla poszczególnych dni
+       katalog_docelowy (str): Ścieżka do katalogu docelowego dla struktury Training/Test
+       podział_testowy (float): Proporcja danych przeznaczonych na zbiór testowy (domyślnie 0.2)
+       zastosuj_wzbogacanie (bool): Czy zastosować wzbogacanie danych treningowych
+       plik_logów (str, opcjonalny): Ścieżka do pliku dziennika zdarzeń
+    Zwraca:
+       bool: Prawda jeśli przetwarzanie zakończyło się pomyślnie, Fałsz w przypadku błędu
+    Uwagi:
+       Katalogi źródłowe muszą mieć nazwy będące liczbami całkowitymi reprezentującymi dni ciąży
+    Funkcja nie wykonywana w demonstratorze.
+    """
     log_section("Przetwarzanie zestawu danych dni ciąży", log_file)
     
     # Sprawdź, czy katalog źródłowy istnieje
@@ -173,7 +241,20 @@ def process_day_dataset(source_dir, dest_dir, test_split=0.2, apply_augmentation
     return True
 
 def copy_images(image_paths, dest_dir, log_file=None):
-    """Kopiuje obrazy do katalogu docelowego"""
+    """
+    Kopiuje pliki obrazów do wskazanego katalogu docelowego.
+    Funkcja tworzy katalog docelowy jeśli nie istnieje, następnie kopiuje 
+    wszystkie pliki obrazów z podanych ścieżek zachowując oryginalne nazwy 
+    plików. W przypadku błędów kopiowania zapisuje informacje do dziennika zdarzeń.
+    Parametry:
+       ścieżki_obrazów (list): Lista ścieżek do plików obrazów do skopiowania
+       katalog_docelowy (str): Ścieżka do katalogu, gdzie mają być skopiowane obrazy
+       plik_logów (str, opcjonalny): Ścieżka do pliku dziennika zdarzeń
+    Uwagi:
+       Funkcja automatycznie tworzy katalog docelowy jeśli nie istnieje.
+       Błędy kopiowania nie przerywają działania funkcji - przetwarzanie kontynuowane 
+       jest dla pozostałych plików.
+   """
     os.makedirs(dest_dir, exist_ok=True)
     
     for img_path in image_paths:
@@ -185,7 +266,21 @@ def copy_images(image_paths, dest_dir, log_file=None):
             log_error(f"Błąd podczas kopiowania {img_path}: {e}", log_file)
 
 def augment_images(image_dir, num_augmentations=5, log_file=None):
-    """Wykonuje augmentację obrazów w katalogu"""
+    """
+    Wykonuje wzbogacanie danych obrazowych poprzez tworzenie zmodyfikowanych kopii.
+    Funkcja wczytuje wszystkie obrazy z wskazanego katalogu, następnie dla każdego 
+    obrazu tworzy określoną liczbę zmodyfikowanych wersji poprzez zastosowanie 
+    losowych przekształceń. Wzbogacone obrazy są zapisywane w tym samym katalogu 
+    z rozszerzeniem nazwy o sufiks augmentacyjny.
+    Parametry:
+       katalog_obrazów (str): Ścieżka do katalogu zawierającego obrazy do wzbogacenia
+       liczba_wzbogaceń (int): Liczba zmodyfikowanych kopii na jeden oryginalny obraz (domyślnie 5)
+       plik_logów (str, opcjonalny): Ścieżka do pliku dziennika zdarzeń
+    Uwagi:
+       Funkcja przetwarza pliki w formatach JPG, JPEG i PNG. Wzbogacone obrazy 
+       otrzymują nazwy z sufiksem "_aug" oraz numerem sekwencyjnym. Błędy 
+       przetwarzania pojedynczych plików nie przerywają działania funkcji.
+    """
     log_info(f"Augmentacja obrazów w {image_dir} ({num_augmentations} kopii na obraz)", log_file)
     
     # Znajdź obrazy
@@ -227,7 +322,22 @@ def augment_images(image_dir, num_augmentations=5, log_file=None):
     log_info(f"Wygenerowano {augmented_count} augmentowanych obrazów", log_file)
 
 def apply_random_augmentation(image):
-    """Stosuje losowe przekształcenia do obrazu"""
+    """
+    Stosuje losowe przekształcenia geometryczne i fotometryczne do obrazu.
+    Funkcja wykonuje zestaw losowych modyfikacji obrazu w celu utworzenia 
+    zróżnicowanej kopii oryginalnego materiału. Każde przekształcenie jest 
+    stosowane z prawdopodobieństwem 50%. Obejmuje: obrót w zakresie ±20°, 
+    przesunięcie do ±30 pikseli, skalowanie w zakresie 0.8-1.2, odbicie 
+    lustrzane poziome oraz modyfikację jasności i kontrastu.
+    Parametry:
+       obraz (numpy.ndarray): Macierz obrazu wejściowego w formacie OpenCV
+    Zwraca:
+       numpy.ndarray: Przekształcony obraz zachowujący wymiary oryginału
+    Uwagi:
+       Funkcja zachowuje oryginalne wymiary obrazu poprzez odpowiednie 
+       przycinanie lub uzupełnianie po operacjach skalowania. Wszystkie 
+       przekształcenia są stosowane na kopii oryginalnego obrazu.
+    """
     # Kopia obrazu
     augmented = image.copy()
     
@@ -282,7 +392,21 @@ def apply_random_augmentation(image):
     return augmented
 
 def main():
-    """Główna funkcja przygotowująca zestaw danych"""
+    """
+    Główna funkcja sterująca procesem przygotowania zestawu danych obrazowych USG klaczy.
+    Funkcja koordynuje cały przepływ przetwarzania danych: analizuje argumenty 
+    wiersza poleceń, konfiguruje system rejestrowania zdarzeń, tworzy strukturę 
+    katalogów docelowych oraz uruchamia odpowiedni tryb przetwarzania danych 
+    (klasyfikacja dwuwartościowa lub wieloklasowa dni ciąży) z opcjonalnym 
+    wzbogacaniem danych.
+    Zwraca:
+       int: Kod zakończenia programu (0 - powodzenie, 1 - błąd)
+    Uwagi:
+       Funkcja automatycznie wybiera algorytm przetwarzania na podstawie 
+       parametru struktury danych. Wszystkie operacje są rejestrowane 
+       w pliku dziennika zdarzeń. Program kończy działanie z odpowiednim 
+       kodem wyjścia informującym o powodzeniu lub niepowodzeniu operacji.
+    """
     # Parsuj argumenty
     args = parse_arguments()
     
