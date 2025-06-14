@@ -18,7 +18,24 @@ from config import REPORTS_DIR, MIN_PREGNANCY_DAY, MAX_PREGNANCY_DAY
 
 
 def create_pregnancy_report(analysis_result, output_dir=None, include_images=True, log_file=None):
-    """Generuje raport PDF z wynikami analizy obrazu USG klaczy"""
+    """
+    Generuje szczegółowy raport diagnostyczny w formacie PDF z wynikami analizy obrazu USG klaczy.
+    Funkcja tworzy profesjonalny dokument medyczny zawierający wyniki wykrywania ciąży, 
+    szacowanie dnia ciąży, analizę cech obrazowych oraz wizualizacje. Raport obejmuje 
+    obliczenia dat krycia i przewidywanego porodu, tabele z alternatywnymi estymacjami 
+    oraz szczegółową analizę parametrów technicznych obrazu USG.
+    Parametry:
+        wynik_analizy (dict): Słownik zawierający kompleksowe wyniki analizy obrazu USG
+        katalog_wyjściowy (str, opcjonalny): Ścieżka do katalogu zapisu raportu
+        dołącz_obrazy (bool): Czy umieścić obrazy USG i wizualizacje w raporcie (domyślnie True)
+        plik_logów (str, opcjonalny): Ścieżka do pliku dziennika zdarzeń
+    Zwraca:
+        str: Ścieżka do wygenerowanego pliku PDF lub None w przypadku błędu
+    Uwagi:
+        Raport zawiera ostrzeżenie o konieczności weryfikacji wyników przez lekarza 
+        weterynarii. Funkcja automatycznie tworzy katalog wyjściowy jeśli nie istnieje 
+        oraz obsługuje błędy generowania dokumentu.
+    """
     
     if output_dir is None:
         output_dir = os.path.dirname(analysis_result.get("image_path", ""))
@@ -200,7 +217,23 @@ def create_pregnancy_report(analysis_result, output_dir=None, include_images=Tru
         return None
 
 def create_batch_report(batch_results, output_dir, log_file=None):
-    """Generuje raport PDF podsumowujący analizę wsadową wielu obrazów USG"""
+    """
+    Generuje zbiorczy raport PDF podsumowujący wyniki analizy wsadowej wielu obrazów USG klaczy.
+    Funkcja tworzy kompleksowy dokument zawierający statystyki zbiorcze, rozkład dni ciąży 
+    z histogramem, oraz szczegółową tabelę wyników dla każdego przeanalizowanego obrazu. 
+    Raport obejmuje obliczenia średnich, median oraz graficzną wizualizację rozkładu 
+    wykrytych ciąż w różnych dniach zaawansowania.
+    Parametry:
+        wyniki_wsadowe (list): Lista słowników zawierających wyniki analizy dla poszczególnych obrazów
+        katalog_wyjściowy (str): Ścieżka do katalogu zapisu raportu zbiorczego
+        plik_logów (str, opcjonalny): Ścieżka do pliku dziennika zdarzeń
+    Zwraca:
+        str: Ścieżka do wygenerowanego zbiorczego pliku PDF lub None w przypadku błędu
+    Uwagi:
+        Funkcja automatycznie generuje histogram rozkładu dni ciąży oraz tabelę 
+        z numeracją porządkową wszystkich przeanalizowanych obrazów. Raport zawiera 
+        ostrzeżenie o konieczności weryfikacji wyników przez specjalistę.
+    """
     
     # Nazwa pliku raportu
     report_filename = os.path.join(output_dir, "raport_zbiorczy.pdf")
@@ -216,7 +249,7 @@ def create_batch_report(batch_results, output_dir, log_file=None):
             bottomMargin=2*cm
         )
         
-        # Style - POPRAWIONE: getSampleStyleeets() -> getSampleStyleSheet()
+        # Style
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(
             name='Title',
