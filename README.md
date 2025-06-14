@@ -46,6 +46,12 @@ System służy do automatycznego wykrywania ciąży oraz szacowania dnia ciąży
   - `Flask` lub `FastAPI` – GUI webowe (dla `web_gui.py`)
 - `yt-dlp` – do pobierania wideo z YouTube
 
+## Zewnętrzne komponenty
+
+Projekt korzysta z narzędzia [yt-dlp](https://github.com/yt-dlp/yt-dlp), dostępnego na licencji [Unlicense](https://github.com/yt-dlp/yt-dlp/blob/master/LICENSE).
+
+W katalogu `scripts/` znajduje się skompilowana wersja `yt-dlp.exe`, pobrana z oficjalnego źródła.
+
 ---
 
 ## Instalacja
