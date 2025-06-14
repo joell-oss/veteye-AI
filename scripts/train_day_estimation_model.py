@@ -20,7 +20,19 @@ from model_training import train_day_estimation_model
 from evaluation import evaluate_day_estimation_model
 
 def parse_arguments():
-    """Parsuje argumenty wiersza poleceń"""
+    """
+    Analizuje i przetwarza argumenty wiersza poleceń dla procesu treningu modelu szacowania dnia ciąży.
+    Funkcja konfiguruje parser argumentów umożliwiający dostosowanie parametrów treningu 
+    sieci neuronowej. Obejmuje ustawienia katalogu danych, wymiarów obrazów, rozmiaru 
+    partii danych, liczby epok dla treningu podstawowego i dostrajania, stopy uczenia 
+    oraz opcję wznawiania treningu od zapisanego punktu kontrolnego.
+    Zwraca:
+       argparse.Namespace: Obiekt zawierający sparsowane parametry konfiguracyjne treningu
+    Uwagi:
+       Wymaga obowiązkowego wskazania katalogu z danymi treningowymi zawierającego 
+       podkatalogi numerowane według dni ciąży. Pozostałe parametry mają wartości 
+       domyślne zdefiniowane w stałych konfiguracyjnych programu.
+    """
     parser = argparse.ArgumentParser(description="Trening modelu szacowania dnia ciąży u klaczy")
     parser.add_argument("--data_dir", required=True, help="Katalog z podkatalogami dni ciąży")
     parser.add_argument("--image_size", type=int, nargs=2, default=IMAGE_SIZE, help="Rozmiar obrazu (szerokość wysokość)")
@@ -33,7 +45,21 @@ def parse_arguments():
     return parser.parse_args()
 
 def main():
-    """Główna funkcja treningu modelu szacowania dnia ciąży"""
+    """
+    Główna funkcja systemu szacowania dnia ciąży u klaczy na podstawie analizy obrazów USG.
+    Funkcja przeprowadza kompletny proces treningu modelu uczenia maszynowego:
+    - Wczytuje i przetwarza dane treningowe z obrazów USG
+    - Tworzy lub wznawia model sieci neuronowej do klasyfikacji dni ciąży
+    - Wykonuje trening bazowy oraz dostrajanie parametrów modelu
+    - Przeprowadza ewaluację dokładności przewidywań
+    - Zapisuje wytrenowany model oraz raporty z wynikami
+    Zwraca:
+        int: Kod wyjścia (0 - sukces, 1 - błąd)
+    Uwagi:
+        Model wykorzystuje techniki głębokiego uczenia do automatycznego
+        rozpoznawania stadium rozwoju płodu na podstawie cech obrazowych.
+    Nie realizowane w demonstratorze.    
+    """
     # Parsuj argumenty
     args = parse_arguments()
     
