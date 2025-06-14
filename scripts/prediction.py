@@ -20,7 +20,21 @@ from image_analysis import analyze_image_features
 
 
 def load_pregnancy_model(model_path=None, log_file=None):
-    """Ładuje model wykrywania ciąży"""
+    """
+    Ładuje model wykrywania ciąży z automatycznym wyszukiwaniem najnowszej wersji.
+    Implementuje inteligentne ładowanie modelu przez:
+    - Automatyczne wykrywanie plików modelu z wzorcem 'Pregna_v1_0' w nazwie
+    - Wybór najnowszego modelu na podstawie daty modyfikacji pliku
+    - Obsługę jawnie podanej ścieżki lub automatycznego wyszukiwania
+    - Pełne logowanie procesu ładowania z poziomami info/success/error
+    Logika wyboru:
+    1. Jeśli podano ścieżkę - używa bezpośrednio
+    2. Jeśli nie - skanuje katalog CHECKPOINTS_DIR
+    3. Filtruje pliki .keras zawierające identyfikator modelu
+    4. Wybiera najnowszy na podstawie timestamps
+    Zwraca załadowany model Keras lub None w przypadku błędu.
+    Zapewnia odporność na brak plików i nieprawidłowe ścieżki.
+    """
     try:
         if model_path is None:
             models = [f for f in os.listdir(CHECKPOINTS_DIR) if f.endswith('.keras') and 'Pregna_v1_0' in f]
@@ -40,7 +54,24 @@ def load_pregnancy_model(model_path=None, log_file=None):
 
 
 def load_day_estimation_model(model_path=None, log_file=None):
-    """Ładuje model szacowania dnia ciąży oraz mapowanie dni"""
+    """
+    Ładuje model szacowania dnia ciąży wraz z mapowaniem klas do dni.
+    Implementuje kompleksowe ładowanie modelu wieloklasowego przez:
+    - Automatyczne wyszukiwanie najnowszego modelu z frazą 'day' w nazwie
+    - Równoczesne ładowanie pliku mapowania klas (_mapping.json)
+    - Wybór najnowszego modelu na podstawie daty modyfikacji
+    - Obsługę braku pliku mapowania (zwraca pusty słownik)
+    Struktura zwracanych danych:
+    - model: załadowany model Keras do predykcji
+    - day_mapping: słownik mapujący indeksy klas na dni ciąży
+    Logika mapowania:
+    1. Automatyczne generowanie ścieżki pliku mapowania z nazwy modelu
+    2. Ładowanie JSON z kodowaniem UTF-8
+    3. Graceful handling braku pliku mapowania
+    Zwraca krotkę (model, day_mapping) lub (None, {}) w przypadku błędu.
+    Niezbędne do interpretacji wyników predykcji wieloklasowej.
+    Nie realizowane w demonstratorze.
+    """
     try:
         if model_path is None:
             models = [f for f in os.listdir(CHECKPOINTS_DIR) if f.endswith('.keras') and 'day' in f]
@@ -65,14 +96,45 @@ def load_day_estimation_model(model_path=None, log_file=None):
 
 
 def predict_pregnancy(img_array, model):
-    """Predykcja ciąży na podstawie przygotowanego obrazu"""
+    """
+    Wykonuje predykcję ciąży na podstawie przetworzonego obrazu USG.
+    Realizuje klasyfikację binarną przez:
+    - Wywołanie predykcji modelu na przygotowanej macierzy obrazu
+    - Ekstrakcję współczynnika pewności z wyjścia modelu
+    - Obsługę różnych formatów wyjściowych (1D/0D tensor)
+    - Klasyfikację binarną z progiem decyzyjnym 0.5
+    Logika klasyfikacji:
+    - confidence > 0.5 → 'pregnant' (ciąża wykryta)
+    - confidence ≤ 0.5 → 'not_pregnant' (brak ciąży)
+    Format wyjściowy:
+    - etykieta: string z wynikiem klasyfikacji
+    - confidence: float reprezentujący pewność predykcji (0.0-1.0)
+    Funkcja zakłada, że obraz został przygotowany
+    (normalizacja, resize, dodanie wymiaru batch).
+    """
     prediction = model.predict(img_array)[0]
     confidence = float(prediction[0]) if prediction.shape[0] == 1 else float(prediction)
     return 'pregnant' if confidence > 0.5 else 'not_pregnant', confidence
 
 
 def estimate_pregnancy_day(img_array, model, mapping=None):
-    """Szacowanie dnia ciąży i top 5 klas"""
+    """
+    Szacuje dzień ciąży z rankingiem top-5 najbardziej prawdopodobnych wyników.
+    Implementuje wieloklasową predykcję przez:
+    - Wykonanie predykcji dla wszystkich możliwych dni ciąży
+    - Sortowanie wyników według prawdopodobieństwa (malejąco)
+    - Wybór 5 najlepszych kandydatów z odpowiednimi współczynnikami pewności
+    - Mapowanie indeksów klas na rzeczywiste dni ciąży (jeśli dostępne)
+    Struktura wyniku:
+    - predicted_day: najbardziej prawdopodobny dzień ciąży
+    - confidence: pewność głównej predykcji (0.0-1.0)
+    - top_5_days: lista 5 najbardziej prawdopodobnych dni
+    - top_5_confidences: odpowiadające im współczynniki pewności
+    Obsługa mapowania:
+    - Z mapowaniem: konwersja indeksów na rzeczywiste dni ciąży
+    - Bez mapowania: zwraca surowe indeksy klas
+    Umożliwia analizę niepewności modelu i alternatywnych diagnoz.
+    """
     preds = model.predict(img_array)[0]
     top_indices = np.argsort(preds)[-5:][::-1]
     top_confs = [float(preds[i]) for i in top_indices]
@@ -93,7 +155,26 @@ def estimate_pregnancy_day(img_array, model, mapping=None):
 
 
 def predict_image(image_path, model=None, log_file=None):
-    """Przetwarza obraz i generuje wynik oraz opis"""
+    """
+    Kompleksowe przetwarzanie obrazu USG z predykcją i generowaniem opisu wyników.
+    Realizuje pełny pipeline analizy obrazu przez:
+    - Wczytanie i przeskalowanie obrazu do rozmiaru modelu (IMAGE_SIZE)
+    - Preprocessing zgodny z InceptionV3 (normalizacja do zakresu [-1,1])
+    - Dodanie wymiaru batch dla kompatybilności z modelem
+    - Klasyfikację binarną z progiem decyzyjnym 0.5
+    - Automatyczne generowanie opisowego raportu wyników
+    Etapy przetwarzania:
+    1. Ładowanie obrazu z dysku z target_size
+    2. Konwersja do macierzy NumPy
+    3. Normalizacja pikseli metodą InceptionV3
+    4. Reshape do formatu batch (1, height, width, channels)
+    5. Predykcja i interpretacja wyników
+    Zwraca krotkę:
+    - predicted_class: 'pregnant'/'not_pregnant'
+    - confidence: współczynnik pewności (0.0-1.0)
+    - description: tekstowy opis wyników predykcji
+    Obsługa błędów z pełnym traceback dla debugowania.
+    """
     try:
         img = image.load_img(image_path, target_size=IMAGE_SIZE)
         img_array = image.img_to_array(img)
@@ -115,6 +196,23 @@ def predict_image(image_path, model=None, log_file=None):
 
 
 def generate_description(predicted_class, confidence, image_path=None, additional_info=None):
+    """
+    Generuje szczegółowy opis diagnostyczny wyniku badania USG z dostosowaniem do poziomu pewności.
+    Tworzy profesjonalny raport weterynaryjny uwzględniający:
+    - Poziom pewności predykcji (>95%, >85%, <85%) z odpowiednimi sformułowaniami
+    - Automatyczne wykrywanie dnia ciąży z nazwy pliku (wzorzec _d[liczba])
+    - Analizę cech technicznych obrazu (kontrast, entropia, struktury płynowe)
+    - Personalizację z danymi klaczy (imię, wiek)
+    - Standardowe zalecenia weterynaryjne
+    Struktura raportu:
+    - Nagłówek z datą badania i podstawowym wynikiem
+    - Opis kliniczny dostosowany do poziomu pewności
+    - Dodatkowe uwagi techniczne dotyczące jakości obrazu
+    - Zalecenia postępowania i kontroli
+    - Disclaimer o konieczności weryfikacji przez weterynarza
+    Automatycznie dostosowuje szczegółowość opisu do wiarygodności wyników,
+    od jednoznacznych diagnoz po ostrożne sugestie wymagające weryfikacji.
+    """
     image_features = None
     if image_path:
         try:
@@ -209,6 +307,26 @@ def generate_description(predicted_class, confidence, image_path=None, additiona
 
 
 def analyze_and_predict(image_path, pregnancy_model, day_model, day_mapping, log_file=None):
+    """
+    Kompleksowa analiza obrazu USG z pełną diagnostyką ciąży i szacowaniem wieku płodu.
+    Wykonuje sekwencyjną analizę składającą się z:
+    1. Wykrywanie ciąży z modelem binarnym i generowanie opisu klinicznego
+    2. Analiza cech technicznych obrazu (kontrast, entropia, struktury)
+    3. Szacowanie dnia ciąży modelem wieloklasowym (jeśli wykryto ciążę)
+    4. Klasifikacja trymestru na podstawie wieku płodu (≤45, ≤90, >90 dni)
+    5. Ranking top-5 najbardziej prawdopodobnych dni z confidence scores
+    Struktura wyniku:
+    - pregnancy: wynik klasyfikacji binarnej z confidence
+    - image_features: parametry techniczne obrazu USG
+    - day_estimation: szczegółowe szacowanie wieku płodu (tylko dla ciąży)
+    - trimester: automatyczna klasyfikacja okresu ciąży
+    - description: profesjonalny raport diagnostyczny
+    Zarządzanie wynikami:
+    - Automatyczne tworzenie katalogów raportów z datą
+    - Pełna obsługa błędów z traceback
+    - Logowanie wszystkich operacji
+    Zwraca strukturę wyników oraz ścieżkę do katalogu raportów.
+    """
     try:
         predicted_class, confidence, description = predict_image(image_path, pregnancy_model, log_file)
         image_features = analyze_image_features(image_path, IMAGE_SIZE)
@@ -258,6 +376,25 @@ def analyze_and_predict(image_path, pregnancy_model, day_model, day_mapping, log
 
 
 def batch_process_images(image_dir, log_file=None):
+    """
+    Masowe przetwarzanie obrazów USG z automatyczną analizą całego katalogu.
+    Implementuje wydajny pipeline batch processing przez:
+    - Jednokrotne ładowanie modeli na początku sesji (optymalizacja pamięci)
+    - Automatyczne wykrywanie obrazów w formatach JPG, PNG, JPEG, BMP
+    - Sekwencyjne przetwarzanie każdego obrazu z pełną analizą diagnostyczną
+    - Gromadzenie wszystkich wyników w jednej strukturze danych
+    Proces przetwarzania:
+    1. Inicjalizacja modeli ciąży i szacowania dnia
+    2. Skanowanie katalogu pod kątem obsługiwanych formatów obrazów
+    3. Analiza każdego obrazu (wykrywanie ciąży + szacowanie wieku)
+    4. Agregacja wyników z obsługą błędów (pomija uszkodzone pliki)
+    Optymalizacja wydajności:
+    - Modele ładowane raz na całą sesję
+    - Filtrowanie plików po rozszerzeniu (case-insensitive)
+    - Graceful handling błędnych plików bez przerywania całego procesu
+    Zwraca listę słowników z wynikami analizy wszystkich przetworzonych obrazów.
+    Funkcjonalność do przyszłej implementacji i rozwoju platformy - analizy dużych zbiorów danych diagnostycznych.
+    """
     results = []
     pregnancy_model = load_pregnancy_model(log_file=log_file)
     day_model, day_mapping = load_day_estimation_model(log_file=log_file)
