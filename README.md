@@ -1,5 +1,5 @@
 
-# System wykrywania ciąży u klaczy
+# System wykrywania ciąży u klaczy - projekt edukacyjny ALK.BIZNES.AI.GR12G2
 
 System służy do automatycznego wykrywania ciąży oraz szacowania dnia ciąży na podstawie obrazów USG. Projekt wspiera zarówno analizę pojedynczych obrazów, jak i przetwarzanie wsadowe z wykorzystaniem GUI i modeli uczenia maszynowego.
 
