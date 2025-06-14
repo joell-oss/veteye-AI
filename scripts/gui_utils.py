@@ -17,7 +17,26 @@ from screeninfo import get_monitors
 
 
 def center_window(window, width=None, height=None, monitor_index=1):
-    """Wyśrodkowuje okno na wskazanym monitorze (domyślnie drugim)"""
+    """
+    Funkcja do wyśrodkowania okna aplikacji na wybranym monitorze w systemie wielomonitorowym.
+    Funkcjonalność:
+    - Automatycznie wykrywa wszystkie dostępne monitory w systemie
+    - Pozycjonuje okno na środku wskazanego monitora (domyślnie drugi monitor)
+    - Pobiera wymiary okna lub używa przekazanych parametrów szerokości/wysokości
+    - Oblicza współrzędne środka ekranu uwzględniając pozycję monitora
+    - Zabezpiecza przed błędami gdy wybrany monitor nie istnieje (przełącza na pierwszy)
+    - Ustawia geometrię okna z precyzyjnymi współrzędnymi pozycji
+    Obliczenia pozycji:
+    - x = pozycja_monitora_x + (szerokość_monitora - szerokość_okna) / 2
+    - y = pozycja_monitora_y + (wysokość_monitora - wysokość_okna) / 2
+    Parametry:
+    - window: obiekt okna Tkinter do wyśrodkowania
+    - width: szerokość okna (opcjonalna, pobierana automatycznie)
+    - height: wysokość okna (opcjonalna, pobierana automatycznie) 
+    - monitor_index: indeks monitora docelowego (domyślnie 1 = drugi monitor)
+    Zastosowanie: pozycjonowanie okien aplikacji medycznych na dedykowanym monitorze
+    w środowisku wieloekranowym (np. monitor główny + monitor dla obrazów USG)
+    """
     if width is None:
         width = window.winfo_width()
     if height is None:
@@ -38,30 +57,55 @@ def center_window(window, width=None, height=None, monitor_index=1):
 
     window.geometry(f"{width}x{height}+{x}+{y}")
 
-'''
-def center_window(window, width=None, height=None):
-    """Wyśrodkowuje okno na ekranie"""
-    if width is None:
-        width = window.winfo_width()
-    if height is None:
-        height = window.winfo_height()
-    
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-    
-    x = (screen_width - width) // 2
-    y = (screen_height - height) // 2
-    
-    window.geometry(f"{width}x{height}+{x}+{y}")
-'''
 
 def create_bold_label(parent, text, **kwargs):
-    """Tworzy etykietę z pogrubionym tekstem"""
+    """
+    Funkcja pomocnicza do tworzenia etykiet z pogrubionym tekstem w interfejsie Tkinter.
+    Funkcjonalność:
+    - Tworzy widget ttk.Label z automatycznie ustawioną pogrubioną czcionką
+    - Wykorzystuje domyślną czcionkę systemową TkDefaultFont w rozmiarze 10pt
+    - Przyjmuje dowolne dodatkowe parametry formatowania przez **kwargs
+    - Zwraca gotowy obiekt etykiety do umieszczenia w kontenerze
+    Parametry:
+    - parent: widget nadrzędny (ramka, okno) do umieszczenia etykiety
+    - text: treść tekstowa do wyświetlenia
+    - **kwargs: dodatkowe opcje formatowania (kolor, padding, justowanie itp.)
+    Zastosowanie: 
+    Upraszcza tworzenie nagłówków, tytułów sekcji i ważnych etykiet 
+    w interfejsie użytkownika bez konieczności wielokrotnego definiowania 
+    parametrów czcionki. Szczególnie przydatne dla etykiet opisujących 
+    pola formularzy w aplikacjach medycznych.
+    Przykład użycia:
+    title_label = create_bold_label(frame, "Dane badanego:", foreground="blue")
+    """
     label = ttk.Label(parent, text=text, font=("TkDefaultFont", 10, "bold"), **kwargs)
     return label
 
 def create_scrollable_frame(parent):
-    """Tworzy przewijalną ramkę"""
+    """
+    Funkcja tworzy przewijalną ramkę z obsługą kółka myszy dla interfejsu Tkinter.
+    Architektura komponentów:
+    - Kontener główny zawierający pasek przewijania i kanwę
+    - Pionowy pasek przewijania umieszczony po prawej stronie
+    - Kanwa (Canvas) służąca jako obszar przewijania
+    - Wewnętrzna ramka (scrollable_frame) do umieszczania widgetów
+    Mechanizm przewijania:
+    - Automatyczna aktualizacja obszaru przewijania przy zmianie zawartości
+    - Dynamiczne dopasowanie szerokości ramki do kanwy
+    - Obsługa przewijania kółkiem myszy dla różnych systemów operacyjnych
+    - Kompatybilność z Windows (MouseWheel), Linux (Button-4/5) i innymi platformami
+    Funkcje pomocnicze:
+    - configure_scroll_region(): aktualizuje zakres przewijania
+    - configure_canvas_window(): dopasowuje szerokość do kontenera
+    - on_mousewheel(): obsługuje przewijanie kółkiem myszy wieloplatformowo
+    Zwracane wartości:
+    - container: główny kontener do umieszczenia w oknie
+    - scrollable_frame: ramka do dodawania widgetów potomnych
+    Zastosowanie: 
+    Tworzenie przewijalnych formularzy, list wyników diagnostycznych, 
+    długich raportów medycznych w aplikacjach z interfejsem graficznym.
+    Szczególnie przydatne gdy zawartość przekracza dostępną przestrzeń ekranu.
+    """
     # Tworzenie kontenera z paskiem przewijania
     container = ttk.Frame(parent)
     
@@ -120,7 +164,28 @@ def create_scrollable_frame(parent):
     return container, scrollable_frame
 
 def load_and_resize_image(image_path, max_width=400, max_height=300):
-    """Ładuje i zmienia rozmiar obrazu do wyświetlenia w GUI"""
+    """
+    Funkcja ładuje obraz z dysku i skaluje go do wyświetlenia w interfejsie graficznym.
+    Proces przetwarzania obrazu:
+    - Otwiera plik obrazu z podanej ścieżki za pomocą PIL/Pillow
+    - Sprawdza czy wymiary przekraczają maksymalne wartości (400x300 px domyślnie)
+    - Oblicza proporcjonalny współczynnik skalowania zachowując proporcje
+    - Używa algorytmu LANCZOS dla wysokiej jakości przeskalowania
+    - Konwertuje finalny obraz do formatu ImageTk.PhotoImage dla Tkinter
+    Algorytm skalowania:
+    - Porównuje współczynniki skalowania dla szerokości i wysokości
+    - Wybiera mniejszy współczynnik aby obraz zmieścił się w zadanych granicach
+    - Zachowuje oryginalny stosunek proporcji obrazu (brak deformacji)
+    - Pomija skalowanie jeśli obraz jest już wystarczająco mały
+    Parametry:
+    - image_path: ścieżka do pliku obrazu na dysku
+    - max_width: maksymalna szerokość w pikselach (domyślnie 400)
+    - max_height: maksymalna wysokość w pikselach (domyślnie 300)
+    Zwraca: obiekt ImageTk.PhotoImage gotowy do wyświetlenia lub None przy błędzie
+    Zastosowanie: 
+    Przygotowanie obrazów USG do podglądu w aplikacji diagnostycznej 
+    bez przekraczania rozmiarów interfejsu użytkownika.
+    """
     try:
         img = Image.open(image_path)
         
@@ -148,7 +213,30 @@ def load_and_resize_image(image_path, max_width=400, max_height=300):
         return None
 
 def create_progress_dialog(parent, title="Postęp", message="Proszę czekać..."):
-    """Tworzy okno dialogowe z paskiem postępu"""
+    """
+    Funkcja tworzy modalne okno dialogowe z animowanym paskiem postępu dla długotrwałych operacji.
+    Właściwości okna dialogowego:
+    - Okno podrzędne (Toplevel) przypisane do okna nadrzędnego
+    - Modalność - blokuje interakcję z głównym oknem (grab_set)
+    - Automatyczne wyśrodkowanie na wybranym monitorze (domyślnie drugim)
+    - Zablokowana możliwość zmiany rozmiaru i zamknięcia przez użytkownika
+    - Wymiary stałe: 300x100 pikseli
+    Komponenty interfejsu:
+    - Etykieta z komunikatem o postępie (z zawijaniem tekstu do 280px)
+    - Pasek postępu w trybie nieokreślonym (indeterminate) - animacja ciągła
+    - Automatyczne uruchomienie animacji paska postępu
+    Parametry konfiguracyjne:
+    - parent: okno nadrzędne dla dialogu
+    - title: tytuł okna (domyślnie "Postęp")
+    - message: tekst komunikatu (domyślnie "Proszę czekać...")
+    Zwracane obiekty:
+    - dialog: referencja do okna dialogowego
+    - progress: referencja do paska postępu
+    Zastosowanie:
+    Informowanie użytkownika o trwających operacjach jak analiza obrazów USG,
+    generowanie raportów PDF, trenowanie modeli AI. Zapobiega przypadkowemu
+    zamknięciu aplikacji podczas krytycznych procesów.
+    """
     dialog = tk.Toplevel(parent)
     dialog.title(title)
     dialog.transient(parent)
@@ -174,7 +262,34 @@ def create_progress_dialog(parent, title="Postęp", message="Proszę czekać..."
     return dialog, progress
 
 def run_with_progress(parent, func, args=(), kwargs={}, title="Przetwarzanie", message="Proszę czekać..."):
-    """Uruchamia funkcję w osobnym wątku z oknem postępu"""
+    """
+    Funkcja wykonuje długotrwałe operacje w tle z wyświetlaniem okna postępu bez blokowania interfejsu.
+    Architektura wielowątkowa:
+    - Główny wątek GUI pozostaje responsywny dla użytkownika
+    - Osobny wątek (daemon) wykonuje zadaną funkcję w tle
+    - Kolejka (Queue) służy do bezpiecznej komunikacji między wątkami
+    - Cykliczne sprawdzanie wyników co 100ms za pomocą parent.after()
+    Mechanizm działania:
+    1. Tworzy modalne okno dialogowe z paskiem postępu
+    2. Uruchamia zadaną funkcję w osobnym wątku z przekazanymi argumentami
+    3. Monitoruje stan wykonania przez kolejkę komunikatów
+    4. Automatycznie zamyka dialog po zakończeniu operacji
+    5. Obsługuje błędy i przekazuje wyniki z powrotem do głównego wątku
+    Obsługa wyników:
+    - Sukces: zwraca wynik funkcji przez result_queue
+    - Błąd: loguje błąd i wyświetla komunikat użytkownikowi
+    - Wynik zapisywany w atrybucie dialog.result
+    Parametry:
+    - parent: okno nadrzędne GUI
+    - func: funkcja do wykonania w tle
+    - args: argumenty pozycyjne dla funkcji
+    - kwargs: argumenty nazwane dla funkcji
+    - title: tytuł okna postępu
+    - message: komunikat wyświetlany użytkownikowi
+    Zastosowanie: 
+    Analiza obrazów USG, generowanie raportów PDF, predykcje modeli AI
+    bez zamrażania interfejsu użytkownika podczas obliczeń.
+    """
     dialog, progress = create_progress_dialog(parent, title, message)
     
     # Kolejka do przekazania wyniku z wątku
@@ -217,7 +332,30 @@ def run_with_progress(parent, func, args=(), kwargs={}, title="Przetwarzanie", m
     return dialog, progress
 
 def plot_figure_in_frame(frame, plot_function, figsize=(5, 4), dpi=100):
-    """Tworzy wykres matplotlib w ramce Tkinter"""
+    """
+    Funkcja integruje wykresy matplotlib z interfejsem Tkinter poprzez osadzenie w ramce.
+    Proces tworzenia wykresu:
+    - Tworzy obiekt Figure matplotlib z określonymi wymiarami i rozdzielczością
+    - Wykonuje przekazaną funkcję rysującą wykres na utworzonej figurze
+    - Konwertuje figurę matplotlib na widget Tkinter przy użyciu FigureCanvasTkAgg
+    - Automatycznie wypełnia dostępną przestrzeń w ramce nadrzędnej
+    Konfiguracja wyświetlania:
+    - Domyślny rozmiar: 5x4 cale
+    - Domyślna rozdzielczość: 100 DPI
+    - Widget kanwy rozciąga się na całą dostępną przestrzeń (fill=BOTH, expand=True)
+    Parametry:
+    - frame: ramka Tkinter do umieszczenia wykresu
+    - plot_function: funkcja przyjmująca obiekt Figure i rysująca wykres
+    - figsize: krotka (szerokość, wysokość) w calach
+    - dpi: rozdzielczość wykresu w punktach na cal
+    Zwracane obiekty:
+    - fig: obiekt Figure matplotlib do dalszych modyfikacji
+    - canvas: kanwa Tkinter z osadzonym wykresem
+    Zastosowanie:
+    Wyświetlanie wykresów analizy obrazów USG, histogramów cech diagnostycznych,
+    macierzy pomyłek modeli AI bezpośrednio w oknie aplikacji medycznej
+    bez konieczności otwierania zewnętrznych okien matplotlib.
+    """
     # Utwórz figurę matplotlib
     fig = plt.Figure(figsize=figsize, dpi=dpi)
     
@@ -233,7 +371,32 @@ def plot_figure_in_frame(frame, plot_function, figsize=(5, 4), dpi=100):
     return fig, canvas
 
 def show_image_with_overlay(image_path, predicted_day=None, is_pregnant=None, parent=None):
-    """Wyświetla obraz z nałożonymi wynikami analizy"""
+    """
+    Funkcja wyświetla obraz USG z nałożonymi wynikami analizy diagnostycznej w osobnym oknie.
+    Proces wyświetlania:
+    - Tworzy nowe okno dialogowe (Toplevel) lub główne okno aplikacji
+    - Ładuje oryginalny obraz USG i rozszerza go o 80 pikseli na dole
+    - Dodaje białe tło pod obrazem dla umieszczenia tekstów wyników
+    - Konwertuje obraz do formatu ImageTk.PhotoImage dla Tkinter
+    Prezentacja wyników:
+    - Status ciąży wyświetlany dużą, pogrubioną czcionką (zielona/czerwona)
+    - Szacowany dzień ciąży pokazywany tylko przy pozytywnym wyniku
+    - Wyniki umieszczone w osobnej ramce pod obrazem
+    - Przycisk "Zamknij" na dole okna
+    Układanie elementów:
+    - Obraz USG na górze z ramką 10px
+    - Ramka wyników wypełniająca szerokość okna
+    - Automatyczne wyśrodkowanie na wybranym monitorze
+    - Rozmiar okna dopasowany do obrazu plus marginesy (20px + 160px)
+    Parametry:
+    - image_path: ścieżka do pliku obrazu USG
+    - predicted_day: przewidywany dzień ciąży (opcjonalny)
+    - is_pregnant: status ciąży True/False (opcjonalny)
+    - parent: okno nadrzędne dla modalności (opcjonalny)
+    Zastosowanie:
+    Prezentacja końcowych wyników analizy AI w czytelnej formie graficznej
+    z zachowaniem oryginalnego obrazu USG i dodanymi adnotacjami diagnostycznymi.
+    """
     try:
         # Utwórz nowe okno
         if parent:
@@ -298,7 +461,15 @@ def show_image_with_overlay(image_path, predicted_day=None, is_pregnant=None, pa
         return None
     
 def create_tooltip(widget, text):
-    """Tworzy tooltip (podpowiedź) dla widgetu"""
+    """
+   Tworzy interaktywną podpowiedź (tooltip) dla dowolnego widgetu Tkinter.
+   Funkcja dodaje do widgetu możliwość wyświetlania pomocniczego tekstu
+   po najechaniu myszką. Tooltip pojawia się jako małe okno obok kursora
+   i znika po opuszczeniu widgetu.
+   Argumenty:
+       widget: Widżet Tkinter, do którego ma zostać dodany tooltip
+       text: Tekst podpowiedzi do wyświetlenia
+   """
     
     def enter(event):
         # Utwórz okno tooltipa
