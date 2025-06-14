@@ -1,0 +1,11 @@
+Model: usg_pregnancy_model_inceptionv3_380x380
+Data: 2025-05-11 19:40:34
+
+              precision    recall  f1-score   support
+
+not_pregnant       1.00      0.97      0.99       105
+    pregnant       0.97      1.00      0.99       113
+
+    accuracy                           0.99       218
+   macro avg       0.99      0.99      0.99       218
+weighted avg       0.99      0.99      0.99       218

@@ -1,0 +1,188 @@
+
+[2025-05-11 17:56:32] === Rozpoczęcie treningu modelu usg_pregnancy_model_inceptionv3_380x380 ===
+[2025-05-11 17:56:32] Rozmiar obrazu: (380, 380), Batch size: 16
+[2025-05-11 17:56:32] Liczba epok: 60 (bazowy) + 40 (fine-tuning)
+[2025-05-11 17:56:32] Ładowanie danych...
+[2025-05-11 17:56:32] Znaleziono 2 klasy: {'not_pregnant': 0, 'pregnant': 1}
+[2025-05-11 17:56:32] Dane treningowe: 900 obrazów
+[2025-05-11 17:56:32] Dane testowe: 218 obrazów
+[2025-05-11 17:56:32] Kroki na epokę: 56
+[2025-05-11 17:56:32] Kroki walidacji: 13
+[2025-05-11 17:56:32] Tworzenie modelu bazowego z InceptionV3...
+[2025-05-11 17:56:38] 
+Rozpoczynanie treningu modelu bazowego...
+[2025-05-11 17:56:40] Rozpoczęcie epoki 1/60
+[2025-05-11 17:58:19] Epoka 1/60: loss=1.0902, val_loss=1.1354, acc=0.8914, val_acc=0.9615
+[2025-05-11 17:58:19] Rozpoczęcie epoki 2/60
+[2025-05-11 17:59:41] Epoka 2/60: loss=0.9415, val_loss=1.0225, acc=0.9514, val_acc=0.9760
+[2025-05-11 17:59:41] Rozpoczęcie epoki 3/60
+[2025-05-11 18:01:02] Epoka 3/60: loss=0.8906, val_loss=0.9189, acc=0.9717, val_acc=0.9904
+[2025-05-11 18:01:02] Rozpoczęcie epoki 4/60
+[2025-05-11 18:02:24] Epoka 4/60: loss=0.8851, val_loss=0.8673, acc=0.9717, val_acc=0.9904
+[2025-05-11 18:02:24] Rozpoczęcie epoki 5/60
+[2025-05-11 18:03:46] Epoka 5/60: loss=0.8751, val_loss=0.8515, acc=0.9774, val_acc=0.9856
+[2025-05-11 18:03:46] Rozpoczęcie epoki 6/60
+[2025-05-11 18:05:08] Epoka 6/60: loss=0.8533, val_loss=0.8321, acc=0.9796, val_acc=0.9904
+[2025-05-11 18:05:08] Rozpoczęcie epoki 7/60
+[2025-05-11 18:06:28] Epoka 7/60: loss=0.8509, val_loss=0.8389, acc=0.9853, val_acc=0.9808
+[2025-05-11 18:06:28] Rozpoczęcie epoki 8/60
+[2025-05-11 18:07:47] Epoka 8/60: loss=0.8457, val_loss=0.8249, acc=0.9796, val_acc=0.9856
+[2025-05-11 18:07:47] Rozpoczęcie epoki 9/60
+[2025-05-11 18:09:06] Epoka 9/60: loss=0.8672, val_loss=0.8179, acc=0.9796, val_acc=0.9856
+[2025-05-11 18:09:06] Rozpoczęcie epoki 10/60
+[2025-05-11 18:10:26] Epoka 10/60: loss=0.8685, val_loss=0.8124, acc=0.9743, val_acc=0.9904
+[2025-05-11 18:10:26] Rozpoczęcie epoki 11/60
+[2025-05-11 18:11:44] Epoka 11/60: loss=0.8165, val_loss=0.8119, acc=0.9853, val_acc=0.9856
+[2025-05-11 18:11:44] Rozpoczęcie epoki 12/60
+[2025-05-11 18:13:05] Epoka 12/60: loss=0.8206, val_loss=0.8034, acc=0.9842, val_acc=0.9904
+[2025-05-11 18:13:05] Rozpoczęcie epoki 13/60
+[2025-05-11 18:14:24] Epoka 13/60: loss=0.8294, val_loss=0.7931, acc=0.9830, val_acc=0.9904
+[2025-05-11 18:14:24] Rozpoczęcie epoki 14/60
+[2025-05-11 18:15:44] Epoka 14/60: loss=0.7936, val_loss=0.7949, acc=0.9898, val_acc=0.9856
+[2025-05-11 18:15:44] Rozpoczęcie epoki 15/60
+[2025-05-11 18:17:06] Epoka 15/60: loss=0.8125, val_loss=0.8011, acc=0.9864, val_acc=0.9856
+[2025-05-11 18:17:06] Rozpoczęcie epoki 16/60
+[2025-05-11 18:18:28] Epoka 16/60: loss=0.8153, val_loss=0.7838, acc=0.9785, val_acc=0.9856
+[2025-05-11 18:18:28] Rozpoczęcie epoki 17/60
+[2025-05-11 18:19:50] Epoka 17/60: loss=0.7898, val_loss=0.7776, acc=0.9864, val_acc=0.9856
+[2025-05-11 18:19:50] Rozpoczęcie epoki 18/60
+[2025-05-11 18:21:11] Epoka 18/60: loss=0.7821, val_loss=0.7693, acc=0.9864, val_acc=0.9904
+[2025-05-11 18:21:11] Rozpoczęcie epoki 19/60
+[2025-05-11 18:22:33] Epoka 19/60: loss=0.7946, val_loss=0.7589, acc=0.9853, val_acc=0.9952
+[2025-05-11 18:22:33] Rozpoczęcie epoki 20/60
+[2025-05-11 18:23:54] Epoka 20/60: loss=0.7834, val_loss=0.7872, acc=0.9808, val_acc=0.9856
+[2025-05-11 18:23:54] Rozpoczęcie epoki 21/60
+[2025-05-11 18:25:14] Epoka 21/60: loss=0.7636, val_loss=0.7782, acc=0.9887, val_acc=0.9856
+[2025-05-11 18:25:14] Rozpoczęcie epoki 22/60
+[2025-05-11 18:26:34] Epoka 22/60: loss=0.7750, val_loss=0.7770, acc=0.9877, val_acc=0.9808
+[2025-05-11 18:26:36] Rozpoczęcie epoki 23/60
+[2025-05-11 18:27:53] Epoka 23/60: loss=0.7746, val_loss=0.7698, acc=0.9808, val_acc=0.9808
+[2025-05-11 18:27:53] Rozpoczęcie epoki 24/60
+[2025-05-11 18:29:12] Epoka 24/60: loss=0.7475, val_loss=0.7942, acc=0.9887, val_acc=0.9808
+[2025-05-11 18:29:12] Rozpoczęcie epoki 25/60
+[2025-05-11 18:30:31] Epoka 25/60: loss=0.7636, val_loss=0.7900, acc=0.9876, val_acc=0.9808
+[2025-05-11 18:30:31] Rozpoczęcie epoki 26/60
+[2025-05-11 18:31:50] Epoka 26/60: loss=0.7527, val_loss=0.7873, acc=0.9853, val_acc=0.9808
+[2025-05-11 18:31:50] Rozpoczęcie epoki 27/60
+[2025-05-11 18:33:09] Epoka 27/60: loss=0.7812, val_loss=0.7670, acc=0.9796, val_acc=0.9856
+[2025-05-11 18:33:09] Rozpoczęcie epoki 28/60
+[2025-05-11 18:34:28] Epoka 28/60: loss=0.7474, val_loss=0.7596, acc=0.9864, val_acc=0.9856
+[2025-05-11 18:34:28] Rozpoczęcie epoki 29/60
+[2025-05-11 18:35:47] Epoka 29/60: loss=0.7423, val_loss=0.7578, acc=0.9910, val_acc=0.9808
+[2025-05-11 18:35:47] Rozpoczęcie epoki 30/60
+[2025-05-11 18:37:07] Epoka 30/60: loss=0.7451, val_loss=0.7638, acc=0.9876, val_acc=0.9760
+[2025-05-11 18:37:07] Rozpoczęcie epoki 31/60
+[2025-05-11 18:38:28] Epoka 31/60: loss=0.7519, val_loss=0.7651, acc=0.9876, val_acc=0.9760
+[2025-05-11 18:38:28] Rozpoczęcie epoki 32/60
+[2025-05-11 18:39:47] Epoka 32/60: loss=0.7501, val_loss=0.7595, acc=0.9864, val_acc=0.9760
+[2025-05-11 18:39:47] Rozpoczęcie epoki 33/60
+[2025-05-11 18:41:09] Epoka 33/60: loss=0.7380, val_loss=0.7569, acc=0.9921, val_acc=0.9760
+[2025-05-11 18:41:09] Rozpoczęcie epoki 34/60
+[2025-05-11 18:42:28] Epoka 34/60: loss=0.7415, val_loss=0.7633, acc=0.9876, val_acc=0.9760
+[2025-05-11 18:42:28] Rozpoczęcie epoki 35/60
+[2025-05-11 18:43:49] Epoka 35/60: loss=0.7350, val_loss=0.7637, acc=0.9876, val_acc=0.9760
+[2025-05-11 18:43:49] Rozpoczęcie epoki 36/60
+[2025-05-11 18:45:09] Epoka 36/60: loss=0.7302, val_loss=0.7620, acc=0.9898, val_acc=0.9760
+[2025-05-11 18:45:09] Rozpoczęcie epoki 37/60
+[2025-05-11 18:46:30] Epoka 37/60: loss=0.7342, val_loss=0.7624, acc=0.9898, val_acc=0.9760
+[2025-05-11 18:46:30] Rozpoczęcie epoki 38/60
+[2025-05-11 18:47:48] Epoka 38/60: loss=0.7360, val_loss=0.7603, acc=0.9876, val_acc=0.9760
+[2025-05-11 18:47:48] Rozpoczęcie epoki 39/60
+[2025-05-11 18:49:08] Epoka 39/60: loss=0.7427, val_loss=0.7562, acc=0.9864, val_acc=0.9760
+[2025-05-11 18:49:08] Rozpoczęcie epoki 40/60
+[2025-05-11 18:50:27] Epoka 40/60: loss=0.7435, val_loss=0.7537, acc=0.9796, val_acc=0.9760
+[2025-05-11 18:50:30] Rozpoczęcie epoki 41/60
+[2025-05-11 18:51:49] Epoka 41/60: loss=0.7294, val_loss=0.7530, acc=0.9830, val_acc=0.9760
+[2025-05-11 18:51:49] Rozpoczęcie epoki 42/60
+[2025-05-11 18:53:09] Epoka 42/60: loss=0.7337, val_loss=0.7510, acc=0.9887, val_acc=0.9760
+[2025-05-11 18:53:11] Rozpoczęcie epoki 43/60
+[2025-05-11 18:54:30] Epoka 43/60: loss=0.7440, val_loss=0.7483, acc=0.9853, val_acc=0.9760
+[2025-05-11 18:54:30] Rozpoczęcie epoki 44/60
+[2025-05-11 18:55:49] Epoka 44/60: loss=0.7336, val_loss=0.7462, acc=0.9876, val_acc=0.9760
+[2025-05-11 18:55:49] Rozpoczęcie epoki 45/60
+[2025-05-11 18:57:08] Epoka 45/60: loss=0.7271, val_loss=0.7460, acc=0.9910, val_acc=0.9760
+[2025-05-11 18:57:08] Rozpoczęcie epoki 46/60
+[2025-05-11 18:58:28] Epoka 46/60: loss=0.7152, val_loss=0.7451, acc=0.9921, val_acc=0.9760
+[2025-05-11 18:58:28] Rozpoczęcie epoki 47/60
+[2025-05-11 18:59:47] Epoka 47/60: loss=0.7228, val_loss=0.7450, acc=0.9887, val_acc=0.9760
+[2025-05-11 18:59:47] Rozpoczęcie epoki 48/60
+[2025-05-11 19:01:06] Epoka 48/60: loss=0.7363, val_loss=0.7428, acc=0.9864, val_acc=0.9760
+[2025-05-11 19:01:06] Rozpoczęcie epoki 49/60
+[2025-05-11 19:02:24] Epoka 49/60: loss=0.7241, val_loss=0.7448, acc=0.9876, val_acc=0.9760
+[2025-05-11 19:02:24] Rozpoczęcie epoki 50/60
+[2025-05-11 19:03:44] Epoka 50/60: loss=0.7390, val_loss=0.7398, acc=0.9876, val_acc=0.9808
+[2025-05-11 19:03:44] Rozpoczęcie epoki 51/60
+[2025-05-11 19:05:04] Epoka 51/60: loss=0.7277, val_loss=0.7374, acc=0.9853, val_acc=0.9760
+[2025-05-11 19:05:04] Rozpoczęcie epoki 52/60
+[2025-05-11 19:06:36] Epoka 52/60: loss=0.7191, val_loss=0.7368, acc=0.9887, val_acc=0.9760
+[2025-05-11 19:06:36] Rozpoczęcie epoki 53/60
+[2025-05-11 19:08:01] Epoka 53/60: loss=0.7302, val_loss=0.7361, acc=0.9876, val_acc=0.9856
+[2025-05-11 19:08:01] Rozpoczęcie epoki 54/60
+[2025-05-11 19:09:22] Epoka 54/60: loss=0.7356, val_loss=0.7339, acc=0.9819, val_acc=0.9856
+[2025-05-11 19:09:23] Rozpoczęcie epoki 55/60
+[2025-05-11 19:10:44] Epoka 55/60: loss=0.7163, val_loss=0.7326, acc=0.9898, val_acc=0.9856
+[2025-05-11 19:10:44] Rozpoczęcie epoki 56/60
+[2025-05-11 19:12:02] Epoka 56/60: loss=0.7300, val_loss=0.7341, acc=0.9898, val_acc=0.9760
+[2025-05-11 19:12:02] Rozpoczęcie epoki 57/60
+[2025-05-11 19:13:21] Epoka 57/60: loss=0.7280, val_loss=0.7342, acc=0.9876, val_acc=0.9760
+[2025-05-11 19:13:21] Rozpoczęcie epoki 58/60
+[2025-05-11 19:14:41] Epoka 58/60: loss=0.7280, val_loss=0.7339, acc=0.9853, val_acc=0.9760
+[2025-05-11 19:14:41] Rozpoczęcie epoki 59/60
+[2025-05-11 19:16:00] Epoka 59/60: loss=0.7212, val_loss=0.7337, acc=0.9887, val_acc=0.9760
+[2025-05-11 19:16:00] Rozpoczęcie epoki 60/60
+[2025-05-11 19:17:19] Epoka 60/60: loss=0.7175, val_loss=0.7359, acc=0.9921, val_acc=0.9760
+[2025-05-11 19:17:19] Zapisywanie wykresów treningu modelu bazowego...
+[2025-05-11 19:17:19] Dostępne metryki: ['loss', 'accuracy', 'precision', 'recall', 'auc', 'binary_accuracy', 'val_loss', 'val_accuracy', 'val_precision', 'val_recall', 'val_auc', 'val_binary_accuracy', 'lr', 'learning_rate']
+[2025-05-11 19:17:22] 
+Ładowanie najlepszego modelu bazowego...
+[2025-05-11 19:17:27] 
+Rozpoczynanie fine-tuningu...
+[2025-05-11 19:17:27] Odmrożono 60 z 311 warstw modelu bazowego
+[2025-05-11 19:17:27] 
+Rozpoczynanie treningu fine-tuning...
+[2025-05-11 19:17:28] Rozpoczęcie epoki 1/60
+[2025-05-11 19:19:02] Epoka 1/60: loss=0.7588, val_loss=0.7344, acc=0.9740, val_acc=0.9856
+[2025-05-11 19:19:02] Rozpoczęcie epoki 2/60
+[2025-05-11 19:20:23] Epoka 2/60: loss=0.7430, val_loss=0.7278, acc=0.9842, val_acc=0.9856
+[2025-05-11 19:20:23] Rozpoczęcie epoki 3/60
+[2025-05-11 19:21:44] Epoka 3/60: loss=0.7411, val_loss=0.7324, acc=0.9808, val_acc=0.9856
+[2025-05-11 19:21:44] Rozpoczęcie epoki 4/60
+[2025-05-11 19:23:02] Epoka 4/60: loss=0.7297, val_loss=0.7463, acc=0.9876, val_acc=0.9808
+[2025-05-11 19:23:02] Rozpoczęcie epoki 5/60
+[2025-05-11 19:24:23] Epoka 5/60: loss=0.7306, val_loss=0.7441, acc=0.9855, val_acc=0.9808
+[2025-05-11 19:24:23] Rozpoczęcie epoki 6/60
+[2025-05-11 19:25:43] Epoka 6/60: loss=0.7308, val_loss=0.7546, acc=0.9842, val_acc=0.9760
+[2025-05-11 19:25:43] Rozpoczęcie epoki 7/60
+[2025-05-11 19:27:01] Epoka 7/60: loss=0.7322, val_loss=0.7431, acc=0.9842, val_acc=0.9808
+[2025-05-11 19:27:01] Rozpoczęcie epoki 8/60
+[2025-05-11 19:28:20] Epoka 8/60: loss=0.7247, val_loss=0.7347, acc=0.9830, val_acc=0.9808
+[2025-05-11 19:28:23] Rozpoczęcie epoki 9/60
+[2025-05-11 19:29:42] Epoka 9/60: loss=0.7240, val_loss=0.7342, acc=0.9864, val_acc=0.9808
+[2025-05-11 19:29:42] Rozpoczęcie epoki 10/60
+[2025-05-11 19:31:02] Epoka 10/60: loss=0.7169, val_loss=0.7386, acc=0.9876, val_acc=0.9808
+[2025-05-11 19:31:03] Rozpoczęcie epoki 11/60
+[2025-05-11 19:32:20] Epoka 11/60: loss=0.7172, val_loss=0.7367, acc=0.9853, val_acc=0.9808
+[2025-05-11 19:32:20] Rozpoczęcie epoki 12/60
+[2025-05-11 19:33:40] Epoka 12/60: loss=0.7157, val_loss=0.7431, acc=0.9864, val_acc=0.9808
+[2025-05-11 19:33:40] Rozpoczęcie epoki 13/60
+[2025-05-11 19:34:58] Epoka 13/60: loss=0.7228, val_loss=0.7444, acc=0.9910, val_acc=0.9808
+[2025-05-11 19:34:59] Rozpoczęcie epoki 14/60
+[2025-05-11 19:36:17] Epoka 14/60: loss=0.7301, val_loss=0.7438, acc=0.9842, val_acc=0.9808
+[2025-05-11 19:36:21] Rozpoczęcie epoki 15/60
+[2025-05-11 19:37:41] Epoka 15/60: loss=0.7365, val_loss=0.7438, acc=0.9830, val_acc=0.9808
+[2025-05-11 19:37:41] Rozpoczęcie epoki 16/60
+[2025-05-11 19:39:01] Epoka 16/60: loss=0.7266, val_loss=0.7402, acc=0.9864, val_acc=0.9808
+[2025-05-11 19:39:01] Rozpoczęcie epoki 17/60
+[2025-05-11 19:40:21] Epoka 17/60: loss=0.7141, val_loss=0.7372, acc=0.9876, val_acc=0.9808
+[2025-05-11 19:40:21] Zapisywanie wykresów treningu fine-tuning...
+[2025-05-11 19:40:21] Dostępne metryki: ['loss', 'accuracy', 'precision', 'recall', 'auc', 'binary_accuracy', 'val_loss', 'val_accuracy', 'val_precision', 'val_recall', 'val_auc', 'val_binary_accuracy', 'lr', 'learning_rate']
+[2025-05-11 19:40:24] 
+Ładowanie najlepszego modelu po fine-tuningu...
+[2025-05-11 19:40:29] 
+Ewaluacja końcowego modelu...
+[2025-05-11 19:40:29] Wykonywanie predykcji na zbiorze testowym...
+[2025-05-11 19:40:34] 
+Raport klasyfikacji:
+[2025-05-11 19:40:37] 
+Model finalny zapisany jako: checkpoints\USGEquina-Pregna_v1_0.keras
+[2025-05-11 19:40:37] === Zakończenie procesu treningu ===
