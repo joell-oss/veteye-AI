@@ -222,6 +222,9 @@ Opis: Raporty PDF z analizy obrazu USG.
 
 # Uruchomienie demonstartora
 
+![Panel demonstartora](logs/panel.png)
+
+Opis: Panel demonstratora - menu.
 
 1. Otwórz PowerShell w katalogu projektu.
 2. Uruchom skrypt komendą:
