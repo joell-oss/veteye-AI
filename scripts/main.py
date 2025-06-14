@@ -9,6 +9,18 @@ import sys
 import tensorflow as tf
 from logging_utils import setup_logging, log_info, log_error, log_section, log_success
 
+"""
+Konfiguracja i inicjalizacja środowiska GPU dla obliczeń TensorFlow.
+Sekcja odpowiedzialna za wykrycie i prawidłowe skonfigurowanie dostępnych
+kart graficznych do przyspieszenia obliczeń uczenia maszynowego. Ustawia
+dynamiczną alokację pamięci GPU, która pozwala na stopniowe zwiększanie
+zużycia pamięci w miarę potrzeb zamiast rezerwowania całej dostępnej pamięci
+na starcie. 
+W przypadku braku dostępnych kart graficznych system automatycznie przełącza
+się na obliczenia procesorem, informując użytkownika o potencjalnym spadku
+wydajności.
+"""
+
 # Konfiguracja GPU
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
@@ -23,7 +35,21 @@ else:
     print("UWAGA: Nie znaleziono GPU. Program będzie działać na CPU, co może być znacznie wolniejsze.")
 
 def parse_arguments():
-    """Parsuje argumenty wiersza poleceń"""
+    """
+    Przetwarza i waliduje argumenty przekazane z linii poleceń dla systemu diagnostyki ciąży.
+    Funkcja definiuje wszystkie dostępne tryby działania aplikacji oraz ich specyficzne
+    parametry konfiguracyjne. Obsługuje cztery główne tryby: trenowanie modeli uczenia
+    maszynowego, analizę pojedynczych obrazów USG, przetwarzanie wsadowe wielu plików
+    oraz przygotowanie zestawów danych treningowych. Każdy tryb posiada dedykowane
+    argumenty dopasowane do konkretnych potrzeb operacyjnych.
+    Dostępne tryby działania:
+    - Trening ("--train"): konfiguracja procesu uczenia modeli z opcjami wznawiania
+    - Analiza ("--analyze"): diagnostyka pojedynczych obrazów ultrasonograficznych
+    - Wsadowe ("--batch"): masowe przetwarzanie katalogów z obrazami USG
+    - Przygotowanie ("--prepare"): organizacja i wstępne przetwarzanie danych treningowych
+    Zwraca:
+       Obiekt zawierający sparsowane argumenty gotowe do wykorzystania w aplikacji
+    """
     parser = argparse.ArgumentParser(description="System wykrywania ciąży u klaczy")
     
     # Główne tryby działania
@@ -62,10 +88,21 @@ def parse_arguments():
     return parser.parse_args()
 
 def train_pregnancy_model(args):
-    """Uruchamia trening modelu wykrywania ciąży"""
+    """
+    Inicjuje proces trenowania modelu sieci neuronowej do wykrywania ciąży u klaczy.
+    Funkcja służy jako mostek między głównym interfejsem aplikacji a dedykowanym
+    modułem treningu. Przekształca argumenty z parsera linii poleceń na format
+    wymagany przez moduł treningowy, umożliwiając elastyczne konfigurowanie
+    procesu uczenia. Obsługuje zarówno nowy trening jak i wznawianie przerwanego
+    procesu od ostatniego punktu kontrolnego.
+    Argumenty:
+       args: Obiekt zawierający sparsowane argumenty z linii poleceń
+             (katalog danych treningowych, flaga wznawiania)
+    Zwraca:
+       Wynik wykonania procesu treningu z modułu train_pregnancy_model
+    """
     from train_pregnancy_model import main as train_main
     
-    # Przygotuj argumenty do skryptu treningu
     sys.argv = [sys.argv[0]]
     
     if args.train_dir:
@@ -74,14 +111,25 @@ def train_pregnancy_model(args):
     if args.resume:
         sys.argv.append("--resume")
     
-    # Uruchom skrypt treningu
     return train_main()
 
 def train_day_model(args):
-    """Uruchamia trening modelu szacowania dnia ciąży"""
+    """
+    Inicjuje proces trenowania modelu sieci neuronowej do szacowania wieku płodu.
+    Funkcja uruchamia moduł odpowiedzialny za uczenie modelu
+    estymacji dnia ciąży na podstawie obrazów ultrasonograficznych. Przekazuje
+    skonfigurowane parametry do dedykowanego skryptu treningowego, umożliwiając
+    precyzyjne określanie zaawansowania ciąży u klaczy. Obsługuje kontynuację
+    treningu z wcześniej zapisanych punktów kontrolnych.
+    Argumenty:
+       args: Obiekt zawierający sparsowane argumenty z linii poleceń
+             (katalog danych treningowych, flaga wznawiania treningu)
+    Zwraca:
+       Wynik wykonania procesu treningu z modułu train_day_estimation_model.
+    Funkcja nie realizwoana w demonstratorze.   
+    """
     from train_day_estimation_model import main as train_day_main
     
-    # Przygotuj argumenty do skryptu treningu
     sys.argv = [sys.argv[0]]
     
     if args.train_dir:
@@ -90,17 +138,30 @@ def train_day_model(args):
     if args.resume:
         sys.argv.append("--resume")
     
-    # Uruchom skrypt treningu
     return train_day_main()
 
 def run_analysis(args):
-    """Uruchamia analizę pojedynczego obrazu lub interfejs graficzny"""
+    """
+    Wykonuje analizę obrazów USG w trybie pojedynczym lub uruchamia interfejs graficzny.
+    Funkcja obsługuje dwa scenariusze użycia: analizę konkretnego pliku obrazu
+    z automatycznym generowaniem raportu diagnostycznego lub uruchomienie
+    graficznego interfejsu użytkownika dla interaktywnej pracy. W trybie analizy
+    pojedynczego obrazu ładuje modele wykrywania ciąży i szacowania wieku płodu,
+    przeprowadza pełną diagnostykę i tworzy szczegółowy raport w formacie PDF.
+    Argumenty:
+       args: Obiekt zawierający sparsowane argumenty z linii poleceń
+             (ścieżka do obrazu, opcjonalna ścieżka do modelu)
+    Zwraca:
+       Kod zakończenia: 0 dla sukcesu, 1 dla błędu w trybie analizy obrazu,
+       lub wynik funkcji interfejsu graficznego
+    Proces obejmuje ładowanie modeli, analizę cech obrazu, predykcję oraz
+    generowanie kompleksowego raportu diagnostycznego z wizualizacjami.
+    """
     if args.image:
         # Analiza pojedynczego obrazu
         from prediction import analyze_and_predict, load_pregnancy_model, load_day_estimation_model
         from report_generator import create_pregnancy_report
         
-        # Skonfiguruj logowanie
         log_file = setup_logging()
         
         log_section("Analiza obrazu USG", log_file)
@@ -140,7 +201,7 @@ def run_analysis(args):
         # Uruchom interfejs graficzny
         from run_analysis_gui import main as gui_main
         
-        # Przygotuj argumenty dla GUI
+        # argumenty dla GUI
         sys.argv = [sys.argv[0]]
         
         if args.model:
@@ -150,10 +211,24 @@ def run_analysis(args):
         return gui_main()
 
 def run_batch_processing(args):
-    """Uruchamia przetwarzanie wsadowe"""
+    """
+    Inicjuje masowe przetwarzanie wielu obrazów USG w trybie wsadowym.
+    Funkcja umożliwia automatyczne przeanalizowanie całych katalogów zawierających
+    obrazy ultrasonograficzne. Przekazuje skonfigurowane parametry do dedykowanego
+    modułu przetwarzania wsadowego, który sekwencyjnie analizuje wszystkie pliki
+    obrazów i generuje wyniki diagnostyczne. Opcjonalnie może utworzyć zbiorczy
+    raport podsumowujący rezultaty całej sesji analitycznej.
+    Argumenty:
+       args: Obiekt zawierający sparsowane argumenty z linii poleceń
+             (katalog wejściowy, katalog wyjściowy, model, flaga raportu)
+    Zwraca:
+       Kod zakończenia: 1 przy braku katalogu wejściowego,
+       lub wynik funkcji modułu przetwarzania wsadowego
+    Proces automatyzuje analizę dużych zbiorów obrazów, oszczędzając czas
+    i zapewniając spójność diagnostyczną dla wszystkich przetwarzanych plików.
+    """
     from batch_processing import main as batch_main
     
-    # Przygotuj argumenty
     sys.argv = [sys.argv[0]]
     
     if args.input_dir:
@@ -171,14 +246,28 @@ def run_batch_processing(args):
     if args.report:
         sys.argv.append("--report")
     
-    # Uruchom przetwarzanie wsadowe
     return batch_main()
 
 def prepare_dataset(args):
-    """Uruchamia przygotowanie zestawu danych"""
+    """
+    Inicjuje proces przygotowania i organizacji zestawu danych treningowych.
+    Funkcja uruchamia dedykowany moduł odpowiedzialny za strukturyzację
+    i wstępne przetwarzanie obrazów USG do celów treningu modeli uczenia
+    maszynowego. Obsługuje różne schematy organizacji danych: binarny
+    (ciąża/brak ciąży) oraz wieloklasowy (poszczególne dni ciąży).
+    Opcjonalnie może zastosować techniki augmentacji danych w celu
+    zwiększenia różnorodności zestawu treningowego.
+    Argumenty:
+       args: Obiekt zawierający sparsowane argumenty z linii poleceń
+             (katalog źródłowy, katalog docelowy, struktura danych, augmentacja)
+    Zwraca:
+       Kod zakończenia: 1 przy braku katalogu źródłowego,
+       lub wynik funkcji modułu prepare_dataset
+    Proces obejmuje kategoryzację obrazów, walidację jakości danych,
+    ewentualną augmentację oraz tworzenie uporządkowanej struktury katalogów.
+    """
     from prepare_dataset import main as prepare_main
     
-    # Przygotuj argumenty
     sys.argv = [sys.argv[0]]
     
     if args.source_dir:
@@ -196,15 +285,21 @@ def prepare_dataset(args):
     if args.augment:
         sys.argv.append("--augment")
     
-    # Uruchom przygotowanie danych
     return prepare_main()
 
 def main():
-    """Główna funkcja programu"""
-    # Parsuj argumenty
+    """
+    Główny punkt wejścia aplikacji systemu diagnostyki ciąży u klaczy.
+    Funkcja koordynuje działanie całego systemu, analizując argumenty
+    przekazane z linii poleceń i delegując wykonanie do odpowiednich
+    modułów specjalistycznych. Obsługuje cztery główne tryby pracy:
+    trenowanie modeli uczenia maszynowego, analizę diagnostyczną obrazów,
+    przetwarzanie wsadowe oraz przygotowanie zestawów danych.
+    Zwraca:
+       Kod zakończenia programu (0 dla sukcesu, inne wartości dla błędów)
+    """
     args = parse_arguments()
     
-    # Uruchom odpowiedni tryb
     if args.train:
         if args.model_type == "pregnancy":
             return train_pregnancy_model(args)
@@ -223,5 +318,9 @@ def main():
     return 0
 
 if __name__ == "__main__":
+    """
+    Punkt uruchomieniowy skryptu - wykonuje główną funkcję i kończy program
+    z odpowiednim kodem zakończenia sygnalizującym sukces lub błąd operacji.
+    """
     exit_code = main()
     exit(exit_code)
