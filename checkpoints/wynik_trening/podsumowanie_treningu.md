@@ -1,4 +1,4 @@
-# Podsumowanie treningu modelu: Klasyfikacja obrazów USG (ci¹¿a vs brak ci¹¿y)
+# Podsumowanie treningu modelu: Klasyfikacja obrazów USG klaczy (ci¹¿a vs brak ci¹¿y)
 
 ## 1. Architektura modelu
 
