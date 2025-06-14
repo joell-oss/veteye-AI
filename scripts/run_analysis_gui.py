@@ -13,14 +13,36 @@ from config import CHECKPOINTS_DIR
 from logging_utils import setup_logging, log_info, log_error
 
 def parse_arguments():
-    """Parsuje argumenty wiersza poleceń"""
+    """
+    Analizuje i przetwarza argumenty przekazane z wiersza poleceń.
+    Funkcja konfiguruje parser argumentów dla interfejsu graficznego systemu 
+    analizy obrazów USG klaczy. Umożliwia użytkownikowi opcjonalne wskazanie 
+    ścieżki do modelu wykrywania ciąży poprzez parametr --model lub -m.
+    Zwraca:
+       argparse.Namespace: Obiekt zawierający sparsowane argumenty wiersza poleceń
+    Uwagi:
+       Parser automatycznie generuje pomoc dostępną poprzez parametr --help.
+       Wszystkie argumenty są opcjonalne - aplikacja może działać bez dodatkowych 
+       parametrów używając domyślnych ustawień.
+    """
     parser = argparse.ArgumentParser(description="Interfejs graficzny do analizy USG ciąży klaczy")
     parser.add_argument("--model", "-m", help="Ścieżka do modelu wykrywania ciąży")
     
     return parser.parse_args()
 
 def find_latest_model():
-    """Znajduje najnowszy dostępny model"""
+    """
+    Wyszukuje najnowszy dostępny model uczenia maszynowego w katalogu punktów kontrolnych.
+    Funkcja przeszukuje katalog z zapisanymi modelami w poszukiwaniu plików 
+    w formacie Keras (.keras) zawierających w nazwie słowa "final" lub "finetuned". 
+    Spośród znalezionych modeli wybiera najnowszy na podstawie daty modyfikacji pliku.
+    Zwraca:
+       str: Ścieżka do najnowszego modelu lub None jeśli nie znaleziono żadnego modelu
+    Uwagi:
+       Funkcja priorytetowo traktuje modele końcowe i dostrojone. W przypadku błędu 
+       dostępu do katalogu lub jego braku zwraca None i wyświetla komunikat o błędzie. 
+       Porównanie dat odbywa się na podstawie czasu ostatniej modyfikacji plików.
+    """
     try:
         # Szukaj modeli końcowych
         model_files = []
@@ -39,7 +61,18 @@ def find_latest_model():
         return None
 
 def main():
-    """Główna funkcja uruchamiająca interfejs graficzny"""
+    """
+    Główna funkcja inicjalizująca i uruchamiająca graficzny interfejs użytkownika.
+    Funkcja koordynuje proces uruchomienia aplikacji: analizuje argumenty wiersza 
+    poleceń, konfiguruje system rejestrowania zdarzeń, wyszukuje odpowiedni model 
+    uczenia maszynowego, tworzy główne okno aplikacji z ustawionym motywem graficznym 
+    oraz inicjalizuje interfejs analizy obrazów USG.
+    Uwagi:
+       Jeśli nie wskazano ścieżki do modelu w argumentach, funkcja automatycznie 
+       wyszukuje najnowszy dostępny model w katalogu punktów kontrolnych. 
+       Aplikacja może działać bez modelu, jednak funkcje analizy będą niedostępne. 
+       Wykorzystuje bibliotekę Tkinter z motywem 'clam' dla nowoczesnego wyglądu.
+    """
     # Parsuj argumenty
     args = parse_arguments()
     
@@ -64,7 +97,7 @@ def main():
     
     # Utwórz styl
     style = ttk.Style()
-    style.theme_use('clam')  # Można zmienić na 'alt', 'default', 'classic'
+    style.theme_use('clam')  # opcje: 'alt', 'default', 'classic'
     
     # Utwórz i uruchom GUI
     app = AnalysisGUI(root, model_path)
