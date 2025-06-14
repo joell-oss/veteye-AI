@@ -107,6 +107,11 @@ Opcje:
 python main.py --train --model-type day --train-dir USG-Mares-Pregnancy-Days
 
 ## Uruchamianie GUI
+
+![Zrzut ekranu GUI](logs/gui.png)
+
+Opis: Główne okno aplikacji desktopowej.
+
 python main.py --analyze
 
 Opcje:
@@ -127,6 +132,9 @@ Opcje:
 ```bash
 python web_gui.py
 ```
+![Zrzut ekranu WebGUI](logs/webgui.png)
+
+Opis: Widok panelu użytkownika w aplikacji webowej.
 
 ---
 
