@@ -10,7 +10,24 @@ from logging_utils import log_info, log_error, log_section
 from config import IMAGE_SIZE, LEARNING_RATE
 
 def create_pregnancy_detection_model(input_shape=IMAGE_SIZE, num_classes=1, learning_rate=LEARNING_RATE, log_file=None):
-    """Tworzy model wykrywania ciąży wykorzystujący InceptionV3 z transfer learning"""
+    """
+    Tworzy model sieci neuronowej do wykrywania ciąży wykorzystujący architekturę InceptionV3.
+    Funkcja buduje głęboką sieć konwolucyjną opartą na pretrenowanym modelu InceptionV3
+    z zastosowaniem techniki uczenia transferowego. Model bazowy pozostaje zamrożony,
+    a na jego szczycie dodawane są dodatkowe warstwy klasyfikacyjne dostosowane do
+    diagnostyki weterynaryjnej. Obsługuje zarówno klasyfikację binarną (ciąża/brak ciąży)
+    jak i wieloklasową w zależności od potrzeb.
+    Argumenty:
+       input_shape: Wymiary obrazów wejściowych (wysokość, szerokość)
+       num_classes: Liczba klas (1 dla binarnej, >1 dla wieloklasowej)
+       learning_rate: Współczynnik uczenia dla optymalizatora
+       log_file: Plik dziennika do rejestrowania procesu
+    Zwraca:
+       Skompilowany model Keras gotowy do treningu z odpowiednimi metrykami
+       i funkcją straty dostosowaną do typu klasyfikacji
+    Architektura zawiera regularyzację L2, warstwy dropout oraz normalizację
+    wsadową dla zapobiegania przeuczeniu i poprawy stabilności treningu.
+    """
     
     log_section("Tworzenie modelu wykrywania ciąży", log_file)
     
@@ -51,9 +68,9 @@ def create_pregnancy_detection_model(input_shape=IMAGE_SIZE, num_classes=1, lear
             base_model,
             layers.GlobalAveragePooling2D(),
             layers.BatchNormalization(),
-            layers.Dense(1024, activation='relu', kernel_regularizer=l2(0.0001)),
-            layers.Dropout(0.5),
-            layers.Dense(512, activation='relu', kernel_regularizer=l2(0.0001)),
+            layers.Dense(768, activation='relu', kernel_regularizer=l2(0.0005)),  # Większa warstwa
+            layers.Dropout(0.5),  # Wyższy dropout dla większego zbioru danych
+            layers.Dense(384, activation='relu', kernel_regularizer=l2(0.0005)),  # Dodatkowa warstwa
             layers.Dropout(0.3),
             layers.Dense(num_classes, activation=activation)
         ])
@@ -74,7 +91,21 @@ def create_pregnancy_detection_model(input_shape=IMAGE_SIZE, num_classes=1, lear
         raise
 
 def create_day_estimation_model(input_shape=IMAGE_SIZE, num_days=316, learning_rate=LEARNING_RATE/2, log_file=None):
-    """Tworzy model szacowania dnia ciąży oparty na InceptionV3"""
+    """
+    Model głębokiego uczenia do klasyfikacji obrazów medycznych z wykorzystaniem transfer learning.
+    Wykorzystuje przedtrénowany model InceptionV3 jako ekstraktor cech, rozszerzony o warstwy
+    gęste z regularyzacją L2 i dropout. Model klasyfikuje obraz do jednej z 316 możliwych
+    kategorii używając aktywacji softmax.
+    Architektura:
+    - InceptionV3 (zamrożony) - ekstrakcja cech z ImageNet
+    - GlobalAveragePooling2D - redukcja wymiarowości  
+    - 3 warstwy Dense (1536→768→256) z regularyzacją L2 i dropout
+    - Warstwa wyjściowa softmax dla 316 klas
+    Parametry:
+    - learning_rate: zmniejszona o połowę względem bazowej wartości
+    - loss: sparse_categorical_crossentropy dla etykiet całkowitych
+    - metryki: accuracy i top-5 accuracy dla oceny wydajności
+    """
     
     log_section("Tworzenie modelu szacowania dnia ciąży", log_file)
     
@@ -119,7 +150,23 @@ def create_day_estimation_model(input_shape=IMAGE_SIZE, num_days=316, learning_r
         raise
 
 def apply_fine_tuning(model, learning_rate=LEARNING_RATE/10, log_file=None):
-    """Odmrażanie i dostrajanie warstw modelu bazowego"""
+    """
+    Funkcja do dostrajania pretrenowanego modelu przez odmrożenie części warstw.
+    Implementuje technikę fine-tuning poprzez:
+    1. Odmrożenie ostatnich 30% warstw modelu bazowego (InceptionV3)
+    2. Rekompilację modelu z obniżoną stopą uczenia (1/10 bazowej wartości)
+    3. Automatyczne dostosowanie funkcji straty i metryk według typu modelu
+    Typy modeli:
+    - Binarny (1 neuron wyjściowy): wykrywanie obecności cechy
+    - Wieloklasowy (>2 neurony): klasyfikacja lub szacowanie wartości
+    - Specjalny przypadek: modele z wieloma klasami używają top-5 accuracy
+    Parametry dostrajania:
+    - Stopień odmrożenia: 30% najgłębszych warstw
+    - Stopa uczenia: zmniejszona 10-krotnie dla stabilności
+    - Funkcja straty: automatycznie dobrana do architektury wyjściowej
+    Zapewnia stopniowe dostrajanie cech wysokopoziomowych przy zachowaniu
+    wcześniej wyuczonych reprezentacji niskopoziomowych.
+    """ 
     
     log_section("Rozpoczynanie fine-tuningu modelu", log_file)
     
