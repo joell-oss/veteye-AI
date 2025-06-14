@@ -15,7 +15,29 @@ from logging_utils import log_info, log_error, log_section, log_success
 from config import REPORTS_DIR
 
 def evaluate_pregnancy_model(model, test_generator, class_names, output_dir=None, log_file=None):
-    """Ocenia model wykrywania ciąży i generuje raport ewaluacyjny"""
+    """
+    Funkcja do kompleksowej oceny skuteczności modelu wykrywania ciąży u klaczy.
+    Wykonywane operacje:
+    - Tworzy folder z raportem ewaluacyjnym z znacznikiem czasowym
+    - Przeprowadza predykcję na zbiorze testowym z progiem decyzyjnym 0.5
+    - Generuje szczegółowy raport klasyfikacji (precyzja, czułość, F1-score)
+    - Tworzy i zapisuje macierz pomyłek jako wykres PNG
+    - Eksportuje metryki do pliku CSV z danymi liczbowymi
+    - Zapisuje wyniki w formacie JSON dla dalszej analizy
+    Pliki wyjściowe:
+    - classification_report.txt: tekstowy raport z metrykami
+    - metrics.csv: tabela z precyzją, czułością i F1 dla każdej klasy
+    - confusion_matrix.png: wizualizacja macierzy pomyłek
+    - evaluation_results.json: strukturalne dane wyników
+    Parametry:
+    - model: wytrenowany model do oceny
+    - test_generator: generator danych testowych
+    - class_names: nazwy klas (pregnant/not_pregnant)
+    - output_dir: katalog docelowy dla raportów (opcjonalny)
+    - log_file: plik dziennika operacji (opcjonalny)
+    Zwraca: słownik z kluczowymi metrykami lub None w przypadku błędu
+    Zastosowanie: obiektywna ocena jakości modelu AI przed wdrożeniem
+    """
     
     if output_dir is None:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -106,7 +128,33 @@ def evaluate_pregnancy_model(model, test_generator, class_names, output_dir=None
         return None
 
 def evaluate_day_estimation_model(model, test_generator, day_mapping, output_dir=None, log_file=None):
-    """Ocenia model szacowania dnia ciąży i generuje raport ewaluacyjny"""
+    """
+    Funkcja do kompleksowej oceny skuteczności modelu szacowania dnia ciąży u klaczy.
+    Wykonywane operacje:
+    - Tworzy folder z raportem ewaluacyjnym z znacznikiem czasowym
+    - Przeprowadza predykcję na zbiorze testowym i mapuje wyniki na dni ciąży
+    - Oblicza błędy bezwzględne między prawdziwymi a przewidywanymi dniami
+    - Generuje statystyki dokładności w różnych przedziałach czasowych (7, 14, 30 dni)
+    - Tworzy histogram rozkładu błędów z zaznaczonymi średnią i medianą
+    - Generuje wykres rozrzutu porównujący prawdziwe vs przewidywane wartości
+    Metryki ewaluacyjne:
+    - Średni i medianowy błąd bezwzględny (w dniach)
+    - Procent predykcji w zakresie ±7, ±14, ±30 dni od prawdziwej wartości
+    - Szczegółowe porównanie dla każdego przypadku testowego
+    Pliki wyjściowe:
+    - day_estimation_report.txt: tekstowy raport ze statystykami
+    - day_estimation_results.csv: szczegółowe wyniki dla każdego przypadku
+    - day_estimation_stats.json: metryki w formacie strukturalnym
+    - day_error_histogram.png: rozkład błędów predykcji
+    - true_vs_predicted_days.png: wykres korelacji rzeczywistych i przewidywanych dni
+    Parametry:
+    - model: wytrenowany model regresyjny
+    - test_generator: generator danych testowych
+    - day_mapping: mapowanie indeksów klas na dni ciąży
+    - output_dir: katalog docelowy (opcjonalny)
+    - log_file: plik dziennika (opcjonalny)
+    Zastosowanie: ocena precyzji szacowania zaawansowania ciąży na podstawie obrazów USG
+    """
     
     if output_dir is None:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
