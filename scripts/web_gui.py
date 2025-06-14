@@ -14,6 +14,16 @@ from nicegui import ui
 from image_analysis import analyze_image_features
 from diagnostic_utils import generate_description, generate_pdf_report, save_features_plot_to_file
 
+'''
+Sekcja inicjalizująca stałe, wczytująca wytrenowany model oraz konfigurująca katalogi wyjściowe.
+Zmienna IMAGE_SIZE określa docelowy rozmiar obrazów wejściowych do modelu.
+MODEL_PATH wskazuje na ścieżkę do zapisanego modelu sieci neuronowej.
+Katalogi na raporty i wyniki tworzone są automatycznie, jeśli nie istnieją.
+Zmienne globalne przechowują m.in. ścieżkę do wczytanego obrazu oraz edytowany opis diagnostyczny.
+Lista class_names zawiera etykiety klas rozpoznawanych przez model.
+Dodane style CSS zwiększają wysokość pola diagnostycznego oraz poprawiają widoczność i ergonomię przycisków pływających i stopki w interfejsie użytkownika.
+'''
+
 # Stałe
 IMAGE_SIZE = (380, 380)
 MODEL_PATH = '../checkpoints/USGEquina-Pregna_v1_0.keras'
@@ -68,6 +78,14 @@ ui.add_head_html("""
 
 # --- Analiza obrazu ---
 async def analyze_image():
+    '''
+    Funkcja analyze_image realizuje kompletny proces analizy wczytanego obrazu USG.
+    Sprawdza poprawność wprowadzonych danych, blokuje interfejs na czas analizy i wyświetla odpowiednie powiadomienia dla użytkownika.
+    Obraz jest przetwarzany przez wytrenowany model, na podstawie predykcji generowany jest opis i wykres cech diagnostycznych.
+    Wyniki analizy są prezentowane w interfejsie oraz automatycznie zapisywane do pliku PDF.
+    Po zakończeniu analizy interfejs jest odblokowywany, a użytkownik otrzymuje informację o zakończeniu operacji.
+    '''
+
     global edited_description
     analysis_notification = None
     
@@ -98,7 +116,7 @@ async def analyze_image():
         
         # Informacja o trwającej analizie w polu wyników
         result_area.value = "Trwa analiza obrazu... Proszę czekać."
-        await asyncio.sleep(0.3)  # Dłuższa pauza dla aktualizacji UI
+        await asyncio.sleep(0.3)  
         
         img = tf.keras.preprocessing.image.load_img(uploaded_image_path, target_size=IMAGE_SIZE)
         img_array = tf.keras.preprocessing.image.img_to_array(img)
@@ -121,7 +139,7 @@ async def analyze_image():
         
         # Aktualizacja pola wyników
         result_area.value = edited_description
-        await asyncio.sleep(0.5)  # Dłuższa pauza dla aktualizacji UI
+        await asyncio.sleep(0.5)  
 
         # Wykres cech
         try:
@@ -152,7 +170,7 @@ async def analyze_image():
                 # wykres słupkowy
                 bars = ax.barh(labels, values, color=bar_color, edgecolor=edge_color, height=0.5)
                 
-                # Dodajemy etykiety wartości po prawej stronie słupków - mniejsza czcionka
+                # etykiety wartości po prawej stronie słupków - mniejsza czcionka
                 for bar in bars:
                     width = bar.get_width()
                     ax.text(width + 0.01, bar.get_y() + bar.get_height()/2, f'{width:.3f}', 
@@ -181,8 +199,8 @@ async def analyze_image():
             chart_path = create_features_chart(image_features)
             chart_display.set_source(chart_path)
             
-            # Wymuszamy odświeżenie komponentów UI poprzez dłuższy sleep
-            await asyncio.sleep(0.5)  # Dłuższa pauza dla odświeżenia UI
+            # odświeżenie komponentów UI poprzez dłuższy sleep
+            await asyncio.sleep(0.5)  
         except Exception as chart_err:
             ui.notify(f'Błąd wygenerowania wykresu: {chart_err}', color='warning')
             print(f"Błąd wykresu: {chart_err}")
@@ -232,6 +250,12 @@ async def analyze_image():
 
 # --- Zapis manualny PDF ---
 async def manual_save_to_file():
+    '''
+    Funkcja manual_save_to_file umożliwia ręczne zapisanie raportu diagnostycznego w formacie PDF.
+    Blokuje interfejs użytkownika na czas operacji zapisu oraz wyświetla stosowne powiadomienia o postępie i zakończeniu procesu.
+    Uwzględnia aktualną treść opisu, w tym wszystkie zmiany wprowadzone przez użytkownika.
+    Po zakończeniu zapisu odblokowuje przyciski i informuje użytkownika o sukcesie operacji lub błędach.
+    '''
     notification = None
     global edited_description
     if not uploaded_image_path:
@@ -315,6 +339,12 @@ async def manual_save_to_file():
 
 # --- Legenda cech ---
 def feature_legend():
+    '''
+    Funkcja feature_legend zwraca opis wybranych cech obrazu USG w formacie HTML.
+    Wyjaśnia znaczenie każdej cechy oraz podaje jej typowy zakres wartości dla dobrej jakości diagnostycznej.
+    Pomaga użytkownikowi w interpretacji wykresów i wyników analizy obrazów ultrasonograficznych.
+    '''
+
     return """
         <div style="font-size: 14px; line-height: 1.5;">
         • <b>mean_intensity</b> – średnia jasność pikseli obrazu.<br/>
@@ -347,6 +377,13 @@ def feature_legend():
         </div>
     """
 
+'''
+Kod odpowiada za budowę głównego interfejsu użytkownika systemu diagnostyki USG klaczy.
+Zawiera pasek nagłówka, formularz do wprowadzania danych badania oraz moduł do wczytywania obrazów USG.
+W centralnej części aplikacji wyświetlane są jednocześnie: obraz ultrasonograficzny oraz wykres cech diagnostycznych.
+Interfejs został zaprojektowany z myślą o przejrzystości i wygodzie użytkownika (UX/UI).
+'''
+
 # Pasek nagłówka
 with ui.header().classes('bg-blue-900 p-4'):
     ui.label("veteye.AI - System diagnostyki USG klaczy").style('font-size: 22px; font-weight: bold; color: white')
@@ -372,6 +409,12 @@ with ui.grid(columns=2).classes('w-full gap-4 mt-2'):
 
 # --- Przeniesienie definicji funkcji show_legend i show_about, które zostały usunięte wraz z przyciskami ---
 def show_legend():
+    '''
+    Funkcja show_legend wyświetla okno dialogowe z legendą opisującą cechy obrazu USG.
+    Pozwala użytkownikowi w łatwy sposób zapoznać się ze znaczeniem poszczególnych parametrów diagnostycznych.
+    Okno można zamknąć przyciskiem.
+    '''
+
     with ui.dialog().classes('w-1/2') as dialog:
         with ui.card():
             ui.label('LEGENDA CECH OBRAZU').classes('text-xl font-bold')
@@ -380,6 +423,15 @@ def show_legend():
     dialog.open()
 
 def show_about():
+    '''
+    Kod definiuje elementy interfejsu odpowiedzialne za prezentację informacji o systemie, 
+    obsługę opisu diagnostycznego oraz główne przyciski funkcyjne. 
+    Funkcja show_about wyświetla szczegółowe informacje o projekcie, autorach i opiekunach pracy. 
+    Pole tekstowe result_area umożliwia wygodne przeglądanie i edycję opisu diagnostycznego. 
+    Na dole ekranu znajdują się pływające przyciski umożliwiające szybki dostęp do najważniejszych funkcji aplikacji.
+    '''
+
+
     with ui.dialog().classes('w-2/3') as dialog:
         with ui.card():
             ui.label('O SYSTEMIE').classes('text-xl font-bold')
@@ -419,6 +471,13 @@ with ui.element('div').classes('floating-buttons'):
     analyze_float_btn = ui.button('ANALIZUJ OBRAZ', on_click=analyze_image).props('color=primary icon=search')
 
 # --- Obsługa wczytywania obrazu ---
+'''
+Kod odpowiada za obsługę procesu wczytywania obrazu do aplikacji oraz prezentację pliku w interfejsie.
+Po załadowaniu plik jest zapisywany na serwerze i automatycznie wyświetlany użytkownikowi.
+Dodatkowo sekcja definiuje stopkę z informacją o modelu i wersji systemu.
+Ostatnia linia uruchamia aplikację w trybie demonstracyjnym z odpowiednim tytułem.
+'''
+
 @upload.on_upload
 def handle_upload(e):
     global uploaded_image_path
