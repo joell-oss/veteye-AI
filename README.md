@@ -216,6 +216,10 @@ Raporty PDF tworzone są automatycznie po analizie obrazu i zawierają:
 - Szacowany dzień ciąży
 - Cechy diagnostyczne
 
+![Raporty generowane w systemie](logs/colageusg.jpg)
+
+Opis: Raporty PDF z analizy obrazu USG.
+
 # Uruchomienie demonstartora
 
 
