@@ -20,7 +20,20 @@ from model_training import train_pregnancy_model, create_callbacks, train_with_e
 from evaluation import evaluate_pregnancy_model
 
 def parse_arguments():
-    """Parsuje argumenty wiersza poleceń"""
+    """
+    Parsuje i konfiguruje argumenty wiersza poleceń dla treningu modelu wykrywania ciąży.
+    Definiuje wszystkie parametry sterujące procesem treningu modelu:
+    - Ścieżki do katalogów z danymi treningowymi i testowymi
+    - Parametry obrazów (rozmiar, rozmiar partii danych)
+    - Ustawienia treningu (liczba epok, stopa uczenia)
+    - Opcje wznowienia treningu z punktu kontrolnego
+    Zwraca:
+        argparse.Namespace: Obiekt zawierający wszystkie sparsowane argumenty
+                           z wartościami domyślnymi lub podanymi przez użytkownika
+    Uwagi:
+        Wszystkie parametry mają wartości domyślne zdefiniowane jako stałe globalne,
+        co umożliwia uruchomienie treningu bez podawania argumentów.
+    """
     parser = argparse.ArgumentParser(description="Trening modelu wykrywania ciąży u klaczy")
     parser.add_argument("--train_dir", default=TRAIN_DIR, help="Katalog z danymi treningowymi")
     parser.add_argument("--test_dir", default=TEST_DIR, help="Katalog z danymi testowymi")
@@ -34,7 +47,21 @@ def parse_arguments():
     return parser.parse_args()
 
 def main():
-    """Główna funkcja treningu modelu"""
+    """
+    Główna funkcja systemu wykrywania ciąży u klaczy metodą klasyfikacji binarnej.
+    Przeprowadza kompletny cykl treningu modelu uczenia maszynowego:
+    - Parsuje parametry konfiguracyjne i sprawdza dostępność danych
+    - Wczytuje i przygotowuje zestawy danych treningowych i testowych
+    - Tworzy lub wznawia model sieci neuronowej do klasyfikacji binarnej
+    - Wykonuje trening bazowy oraz proces dostrajania parametrów
+    - Przeprowadza szczegółową ewaluację dokładności klasyfikacji
+    - Zapisuje wytrenowany model oraz szczegółowe raporty wyników
+    Zwraca:
+        int: Kod wyjścia programu (0 - pomyślne zakończenie, 1 - wystąpił błąd)
+    Uwagi:
+        Model rozróżnia dwa stany: obecność i brak ciąży na podstawie analizy
+        obrazów USG przy użyciu technik głębokiego uczenia maszynowego.
+    """
     # Parsuj argumenty
     args = parse_arguments()
     
