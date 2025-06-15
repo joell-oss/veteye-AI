@@ -28,7 +28,7 @@ Parametry trenowalne: **1,873,409**
 Parametry zamrożone (InceptionV3): **21,806,880**
 
 ---
-## 1a. Środowisko treningowe  
+### 1a. Środowisko treningowe  
 
 | Parametr | Wartość |
 |----------|---------|
@@ -50,7 +50,7 @@ Parametry zamrożone (InceptionV3): **21,806,880**
 
 ---
 
-## 2a. Przetwarzanie wstępne i augmentacje  
+### 2a. Przetwarzanie wstępne i augmentacje  
 
 **Uwaga:** Augmentacje nie zostały zapisane w logach, standardowo zastosowano:
 - Losową zmianę jasności/kontrastu,
@@ -60,7 +60,7 @@ Parametry zamrożone (InceptionV3): **21,806,880**
 
 ---
 
-## 2b. Strategia treningu  
+### 2b. Strategia treningu  
 
 | Faza | Zakres epok | Warstwy trenowalne | LR początkowy | Callbacki |
 |------|-------------|--------------------|---------------|-----------|
@@ -69,7 +69,7 @@ Parametry zamrożone (InceptionV3): **21,806,880**
 
 ---
 
-## 2c. Przebieg treningu
+### 2c. Przebieg treningu
 
 - **Rozmiar wejściowy:** 380x380 pikseli  
 - **Zbiór treningowy:** 900 obrazów  
@@ -84,7 +84,7 @@ Parametry zamrożone (InceptionV3): **21,806,880**
 
 ---
 
-### 3. Historia treningu
+## 3. Historia treningu
 
 
 ### 3.1 Statystyki treningu (77 obserwacji)
@@ -104,7 +104,7 @@ W obu wypadkach różnica między metrykami treningowymi a walidacyjnymi pozost
 
 ---
 
-## 3.2. Harmonogram uczenia (LR schedule)
+### 3.2. Harmonogram uczenia (LR schedule)
 
 | Moment | Epoka | LR po zmianie |
 |--------|-------|--------------|
@@ -119,7 +119,7 @@ W obu wypadkach różnica między metrykami treningowymi a walidacyjnymi pozost
 
 ---
 
-## 3.3. Wnioski i dalsze kroki  
+### 3.3. Wnioski i dalsze kroki  
 
 1. **Wysoka skuteczność** – model osiągnął `val_accuracy ≈ 99.5 %`.  
 2. **Brak overfittingu** – krzywe `loss`/`val_loss` przebiegają równolegle.  
@@ -237,11 +237,14 @@ ale też jest odporny na fałszywie pozytywne i negatywne wskazania.
 | Zarówno w fazie treningu bazowego, jak i fine-tuningu model stabilnie się uczył i nie przejawiał oznak overfittingu. |
 | Model jest gotowy do wdrożenia lub dalszych testów na nowych zbiorach danych.                                    |
 
+---
 
 | Rekomendacje                                                                                                 |
 |-------------------------------------------------------------------------------------------------------------|
 | Dla pełnej walidacji warto przetestować model na zupełnie nowych, niezależnych danych medycznych.           |
 | Sugerowane jest dalsze monitorowanie wyników modelu po wdrożeniu.                                           |
+
+---
 
 | Obszar | Propozycja |
 |--------|-----------|
@@ -255,7 +258,7 @@ ale też jest odporny na fałszywie pozytywne i negatywne wskazania.
 
 **Wszystkie wykresy i grafiki są bezpośrednio generowane w procesie treningu i odzwierciedlają stabilność oraz wysoką jakość modelu.**
 
-### 6. Klonowanie repozytorium i środowisko
+## 6. Klonowanie repozytorium i środowisko
 
 ```bash
 # 1. Klon repozytorium
@@ -268,7 +271,7 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 10.2 Struktura danych
+### 6.1 Struktura danych
 
 ```
 USG-Mares-Pregnancy-Dataset/
@@ -290,7 +293,7 @@ python prepare_dataset.py \
   --augment
 ```
 
-### 10.3 Trening modeli
+### 6.2 Trening modeli
 
 #### Klasyfikator ciąży
 
@@ -313,7 +316,7 @@ python train_day_estimation_model.py \
   --epochs 100
 ```
 
-### 10.4 Ewaluacja
+### 6.3 Ewaluacja
 
 ```bash
 python evaluation.py \
@@ -321,7 +324,7 @@ python evaluation.py \
   --test-dir USG-Mares-Pregnancy-Dataset/Test
 ```
 
-### 10.5 Inne tryby pracy
+### 6.4 Inne tryby pracy
 
 | Akcja | Komenda |
 |-------|---------|
