@@ -86,14 +86,8 @@ Parametry zamrożone (InceptionV3): **21,806,880**
 
 ### 3. Historia treningu
 
-### 3.1 Krzywe uczenia
 
-<div align="center">
-  <img src="train_val_loss.png" alt="Loss curve" width="400"/>
-  <img src="train_val_accuracy.png" alt="Accuracy curve" width="400"/>
-</div>
-
-### 3.2 Statystyki treningu (77 obserwacji)
+### 3.1 Statystyki treningu (77 obserwacji)
 
 | Metryka | Min | Średnia | Mediana | Max |
 |---------|-----|---------|---------|-----|
@@ -110,7 +104,7 @@ W obu wypadkach różnica między metrykami treningowymi a walidacyjnymi pozost
 
 ---
 
-## 3.3. Harmonogram uczenia (LR schedule)
+## 3.2. Harmonogram uczenia (LR schedule)
 
 | Moment | Epoka | LR po zmianie |
 |--------|-------|--------------|
@@ -125,7 +119,7 @@ W obu wypadkach różnica między metrykami treningowymi a walidacyjnymi pozost
 
 ---
 
-## 3.4. Wnioski i dalsze kroki  
+## 3.3. Wnioski i dalsze kroki  
 
 1. **Wysoka skuteczność** – model osiągnął `val_accuracy ≈ 99.5 %`.  
 2. **Brak overfittingu** – krzywe `loss`/`val_loss` przebiegają równolegle.  
@@ -135,7 +129,6 @@ W obu wypadkach różnica między metrykami treningowymi a walidacyjnymi pozost
 
 ![Dokładność – model bazowy](training_history_base.png)
 
-**Opis:**  
 Szybki wzrost dokładności, stabilizacja na poziomie powyżej 96% już po kilku epokach - systematyczny wzrost dokładności 
 zarówno dla zbioru treningowego, jak i walidacyjnego. Od początku walidacyjna accuracy przekracza 0.96 i zbliża się do 
 wartości 0.99 już po kilku epokach, co potwierdza szybkie uczenie się modelu i brak poważnego overfittingu.
@@ -144,7 +137,6 @@ wartości 0.99 już po kilku epokach, co potwierdza szybkie uczenie się modelu 
 
 ![AUC – model bazowy](training_history_base_auc.png)
 
-**Opis:**  
 AUC zbliżone do 1, bardzo dobra rozdzielczość klas już od początku treningu. Wartość AUC (Area Under Curve) jest bardzo 
 wysoka przez cały proces treningu. Świadczy to o zdolności modelu do poprawnej klasyfikacji zarówno pozytywnych, 
 jak i negatywnych przypadków nawet przy różnych progach decyzyjnych.
@@ -153,7 +145,6 @@ jak i negatywnych przypadków nawet przy różnych progach decyzyjnych.
 
 ![Precision & Recall – model bazowy](training_history_base_precision_recall.png)
 
-**Opis:**  
 Precyzja i recall na bardzo wysokim poziomie przez cały trening, bez wyraźnego overfittingu. Zarówno precyzja, 
 jak i recall utrzymują się na wysokim, stabilnym poziomie, z minimalnymi różnicami pomiędzy zbiorem treningowym 
 a walidacyjnym, co oznacza, że model dobrze generalizuje.
@@ -166,7 +157,6 @@ a walidacyjnym, co oznacza, że model dobrze generalizuje.
 
 ![Dokładność – fine-tuning](training_history_finetuned.png)
 
-**Opis:**
 Podczas etapu fine-tuningu widoczna jest dalsza poprawa wyników oraz utrzymanie bardzo wysokiej dokładności na 
 zbiorze walidacyjnym. Ostatecznie model osiąga praktycznie maksymalną skuteczność klasyfikacji.
 
@@ -174,7 +164,6 @@ zbiorze walidacyjnym. Ostatecznie model osiąga praktycznie maksymalną skuteczn
 
 ![AUC – fine-tuning](training_history_finetuned_auc.png)
 
-**Opis:**
 Wartość AUC pozostaje bliska 1, co oznacza, że model nie tylko trafnie klasyfikuje, ale też bardzo dobrze 
 klasyfikuje poprawnie z dużą pewnością predykcji.
 
@@ -182,7 +171,6 @@ klasyfikuje poprawnie z dużą pewnością predykcji.
 
 ![Precision & Recall – fine-tuning](training_history_finetuned_precision_recall.png)
 
-**Opis:**  
 Model po fine-tuningu utrzymuje i lekko poprawia wysokie wartości dokładności, AUC oraz precyzji i recall. 
 Precision, jak i recall osiągają bardzo wysokie wartości (powyżej 0.97) dla obu klas, nawet po fine-tuningu, 
 co świadczy o stabilności i skuteczności modelu.
@@ -210,7 +198,6 @@ Praktycznie brak błędnych klasyfikacji.
 
 ![Macierz pomyłek](confusion_matrix.png)
 
-**Opis:**  
 Model poprawnie klasyfikuje zdecydowaną większość przypadków. Zaledwie kilka próbek zostało błędnie sklasyfikowanych 
 – co w praktyce oznacza bardzo wysoką niezawodność rozwiązania.
 
@@ -220,7 +207,6 @@ Model poprawnie klasyfikuje zdecydowaną większość przypadków. Zaledwie kilk
 
 ![Krzywa ROC](roc_curve.png)
 
-**Opis:**  
 Krzywa ROC znajduje się bardzo blisko lewego górnego rogu wykresu, co wskazuje na niemal perfekcyjną skuteczność modelu. 
 Wysoka wartość AUC (bliska 1.0) potwierdza doskonałą rozdzielczość klas.
 
@@ -230,7 +216,6 @@ Wysoka wartość AUC (bliska 1.0) potwierdza doskonałą rozdzielczość klas.
 
 ![Precision-Recall Curve](precision_recall_curve.png)
 
-**Opis:**  
 Krzywa precision-recall utrzymuje się bardzo wysoko dla obu klas, co oznacza, że model nie tylko przewiduje poprawnie, 
 ale też jest odporny na fałszywie pozytywne i negatywne wskazania.
 
@@ -351,9 +336,7 @@ python evaluation.py \
 > .\#StartMENU.ps1
 > ```
 
-Pliki `train_val_loss.png` i `train_val_accuracy.png` znajdują się w `checkpoints/wynik_treningu/` po pierwszym treningu.
-
 ---
 
-> **Autor**: Zespół Biznes.AI  
+> **Autor**: Zespół ALK.BIZNES.AI.G12.G2  
 > **Data treningu**: maj 2025  

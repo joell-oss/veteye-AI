@@ -112,6 +112,9 @@ Opcje:
 ### Trenowanie modelu szacowania dnia ciąży
 python main.py --train --model-type day --train-dir USG-Mares-Pregnancy-Days
 
+## Podsumowanie treningu
+[Zobacz szczegóły](checkpoints/wynik_trening/podsumowanie_treningu.md)
+
 ## Uruchamianie GUI
 
 ![Zrzut ekranu GUI](logs/gui.png)
