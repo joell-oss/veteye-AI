@@ -89,8 +89,8 @@ Parametry zamrożone (InceptionV3): **21,806,880**
 ### 3.1 Krzywe uczenia
 
 <div align="center">
-  <img src="loss_plot.png" alt="Loss curve" width="400"/>
-  <img src="accuracy_plot.png" alt="Accuracy curve" width="400"/>
+  <img src="train_val_loss.png" alt="Loss curve" width="400"/>
+  <img src="train_val_accuracy.png" alt="Accuracy curve" width="400"/>
 </div>
 
 ### 3.2 Statystyki treningu (77 obserwacji)
