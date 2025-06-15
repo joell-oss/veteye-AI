@@ -258,6 +258,8 @@ ale też jest odporny na fałszywie pozytywne i negatywne wskazania.
 
 **Wszystkie wykresy i grafiki są bezpośrednio generowane w procesie treningu i odzwierciedlają stabilność oraz wysoką jakość modelu.**
 
+---
+
 ## 6. Klonowanie repozytorium i środowisko
 
 ```bash
