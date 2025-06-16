@@ -54,6 +54,68 @@ W katalogu `scripts/` znajduje się skompilowana wersja `yt-dlp.exe`, pobrana z 
 
 ---
 
+# Obsługa GPU (Windows) – instalacja cuDNN 8.1 (CUDA 11.2)
+
+Aby korzystać z akceleracji GPU, **wymagane jest środowisko CUDA 11.2 oraz biblioteka cuDNN v8.1.1**.  
+Opis pobrania oraz instalacji.
+
+> **Plik ZIP należy zapisać w katalogu projektu `package/`.**
+
+## Krok 1 · Pobranie
+
+1. Wejdź na stronę [NVIDIA cuDNN](https://developer.nvidia.com/cudnn) ↗ i zaloguj się (konto NVIDIA Developer jest bezpłatne).
+2. Pobierz wersję: **cuDNN v8.1.1 for CUDA 11.2 (Windows x64)** – plik **`cudnn-11.2-windows-x64-v8.1.1.33.zip`**.
+3. Skopiuj pobrane archiwum do folderu projektu:
+   ```text
+   package/cudnn-11.2-windows-x64-v8.1.1.33.zip
+   ```
+
+## Krok 2 · Instalacja
+
+1. **Rozpakuj archiwum:**
+   ```powershell
+   Expand-Archive package\cudnn-11.2-windows-x64-v8.1.1.33.zip -DestinationPath .
+   ```
+
+2. **Skopiuj zawartość podkatalogów** do odpowiadających ścieżek instalacji CUDA 11.2 (domyślnie `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2`):
+
+   | Źródło w archiwum | Cel |
+   |-------------------|-----|
+   | `bin\*` | `...\CUDA\v11.2\bin` |
+   | `include\*` | `...\CUDA\v11.2\include` |
+   | `lib\x64\*` | `...\CUDA\v11.2\lib\x64` |
+
+3. **Upewnij się**, że w `bin` znajdują się pliki `cudnn64_8.dll`, `cudnn_ops_infer64_8.dll`, `cudnn_cnn_infer64_8.dll`, itp.
+
+## Krok 3 · Zmienne środowiskowe
+
+Ścieżki CUDA powinny znajdować się w PATH (instalator CUDA dodaje je automatycznie).
+
+**W razie potrzeby:**
+```powershell
+$env:Path += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\bin"
+$env:Path += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\lib\x64"
+```
+
+## Krok 4 · Weryfikacja
+
+```powershell
+python - << "EOF"
+import tensorflow as tf
+print("TF-GPU:", tf.test.is_built_with_cuda())
+print("GPU dostępne:", tf.config.list_physical_devices('GPU'))
+EOF
+```
+
+Jeśli oba polecenia zwracają `True` lub listę urządzeń, instalacja zakończyła się sukcesem.
+
+---
+
+**Uwaga:** cuDNN jest udostępniany na licencji NVIDIA Software License Agreement.  
+Korzystanie w produkcji wymaga akceptacji warunków tej licencji.
+
+---
+
 ## Instalacja
 
 ```bash
