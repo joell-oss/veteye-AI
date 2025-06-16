@@ -112,7 +112,7 @@ Jeśli oba polecenia zwracają `True` lub listę urządzeń, instalacja zakończ
 ---
 
 **Uwaga:** cuDNN jest udostępniany na licencji NVIDIA Software License Agreement.  
-Korzystanie w produkcji wymaga akceptacji warunków tej licencji.
+Korzystanie wymaga akceptacji warunków tej licencji.
 
 ---
 
