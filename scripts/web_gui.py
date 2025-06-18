@@ -10,9 +10,10 @@ import tensorflow as tf
 import asyncio
 import traceback  # Dodanie modułu do śledzenia błędów
 from PIL import Image
-from nicegui import ui
+from nicegui import ui, app
 from image_analysis import analyze_image_features
 from diagnostic_utils import generate_description, generate_pdf_report, save_features_plot_to_file
+from fastapi.staticfiles import StaticFiles
 
 '''
 Sekcja inicjalizująca stałe, wczytująca wytrenowany model oraz konfigurująca katalogi wyjściowe.
@@ -31,6 +32,7 @@ REPORTS_DIR = 'raporty'
 MANUAL_DIR = 'wyniki'
 os.makedirs(REPORTS_DIR, exist_ok=True)
 os.makedirs(MANUAL_DIR, exist_ok=True)
+
 
 # Zmienne globalne
 uploaded_image_path = None
@@ -385,8 +387,33 @@ Interfejs został zaprojektowany z myślą o przejrzystości i wygodzie użytkow
 '''
 
 # Pasek nagłówka
-with ui.header().classes('bg-blue-900 p-4'):
-    ui.label("veteye.AI - System diagnostyki USG klaczy").style('font-size: 22px; font-weight: bold; color: white')
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+static_path = os.path.join(project_root, 'static')
+app.mount('/static', StaticFiles(directory=static_path), name='static')
+
+with ui.header().classes('bg-blue-900 px-4 py-2'):
+    with ui.row().classes('w-full items-center justify-between'):
+
+        # Lewa strona
+        ui.label("veteye.AI - System diagnostyki USG klaczy") \
+            .classes('text-white text-lg font-bold')
+
+        # Prawa strona
+        with ui.row().classes('items-center gap-3'):
+            # Login tekst
+            ui.label('LoginID: 0658793211 (Państwowa Stadnina Koni Hodowlanych - Niejanów Niepodlaski)') \
+                .classes('text-white text-xs')
+
+            ui.icon('account_circle') \
+                .classes('text-white cursor-pointer') \
+                .style('font-size: 40px; height: 40px; width: 40px;') \
+                .tooltip('Konto i ustawienia')
+
+            with ui.link(target='https://tu2.app/', new_tab=True):
+                ui.image('/static/images/logo.png') \
+                    .classes('transition-all duration-300 hover:scale-105') \
+                    .style('height: 40px; max-width: 180px; width: 160px;')
+
 
 # --- GÓRNY UKŁAD: dane klaczy + wczytaj obraz ---
 with ui.row().classes('w-full items-end gap-4 mt-4'):
@@ -422,6 +449,46 @@ def show_legend():
             ui.button('Zamknij', on_click=dialog.close).props('color=primary')
     dialog.open()
 
+def show_consent():
+    '''
+    Funkcja `show_consent()` tworzy i wyświetla okno dialogowe z treścią zgody na przetwarzanie danych osobowych 
+    oraz medycznych w kontekście wykorzystania systemu diagnostycznego opartego na sztucznej inteligencji (AI) 
+    do oceny stanu zdrowia klaczy.
+    Zastosowanie:
+    Funkcja ta może być użyta w aplikacji webowej do przedstawienia użytkownikowi obowiązkowej zgody, 
+    np. przed uruchomieniem procedury diagnostycznej z wykorzystaniem AI.
+    '''
+    
+    dialog = ui.dialog()
+    with dialog:
+        with ui.card().classes('p-4'):
+            ui.label('ZGODA NA PRZETWARZANIE DANYCH').classes('text-xl font-bold mb-2')
+            ui.html("""<div style="font-size: 12px; line-height: 1.4;">
+                Wyrażam zgodę na przetwarzanie danych osobowych, w tym danych identyfikujących zwierzę oraz danych medycznych (obrazów ultrasonograficznych), przez operatora systemu diagnostycznego wykorzystującego sztuczną inteligencję (AI), w celu przeprowadzenia wspomaganej komputerowo oceny stanu zdrowia klaczy.<br><br>
+
+                Oświadczam, że zostałem/-am poinformowany/-a, iż:<br><br>
+
+                • Dane będą przetwarzane zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO) i aktami towarzyszącymi,<br>
+                • a także z ustawą z dnia 21 grudnia 1990 r. o zawodzie lekarza weterynarii i izbach lekarsko-weterynaryjnych.<br>
+                • Przetwarzanie danych odbywa się w celach diagnostycznych oraz doskonalenia jakości usług świadczonych przez lekarzy weterynarii.<br>
+                • Dane nie będą udostępniane osobom trzecim bez wyraźnej podstawy prawnej lub odrębnej zgody.<br><br>
+
+                Lekarz weterynarii nadzorujący proces diagnostyczny ponosi pełną odpowiedzialność za interpretację wyników oraz ma obowiązek kierować się zasadami Kodeksu Etyki Lekarza Weterynarii, w tym zachowaniem tajemnicy zawodowej.<br><br>
+
+                <b>Mam prawo do:</b><br>
+                – dostępu do swoich danych,<br>
+                – ich sprostowania, usunięcia lub ograniczenia przetwarzania,<br>
+                – wniesienia sprzeciwu,<br>
+                – cofnięcia zgody w dowolnym momencie bez wpływu na legalność przetwarzania dokonanego przed jej cofnięciem.<br><br>
+
+                ✅ Zgadzam się na przetwarzanie danych zgodnie z powyższą klauzulą.<br><br>
+
+                <i>Oświadczenie o zgodzie na wykorzystanie systemu sztucznej inteligencji (AI) zostało złożone przez Państwową Stadninę Koni Hodowlanych - Niejanów Niepodlaski, zwaną dalej Subskrybentem Systemu, w dniu 15 czerwca 2025 r.</i>
+                </div>
+            """)
+            ui.button('Zamknij', on_click=dialog.close).props('color=primary')
+    dialog.open()
+
 def show_about():
     '''
     Kod definiuje elementy interfejsu odpowiedzialne za prezentację informacji o systemie, 
@@ -430,8 +497,6 @@ def show_about():
     Pole tekstowe result_area umożliwia wygodne przeglądanie i edycję opisu diagnostycznego. 
     Na dole ekranu znajdują się pływające przyciski umożliwiające szybki dostęp do najważniejszych funkcji aplikacji.
     '''
-
-
     with ui.dialog().classes('w-2/3') as dialog:
         with ui.card():
             ui.label('O SYSTEMIE').classes('text-xl font-bold')
@@ -465,6 +530,7 @@ result_area = ui.textarea(label='Opis diagnostyczny').props('outlined').classes(
 # --- PRZYCISKI PŁYWAJĄCE NA DOLE EKRANU ---
 with ui.element('div').classes('floating-buttons'):
     about_float_btn = ui.button('O SYSTEMIE', on_click=show_about).props('color=secondary icon=info')
+    consent_float_btn = ui.button('ZGODY I OŚWIADCZENIA', on_click=show_consent).props('color=secondary icon=verified_user')
     visit_float_btn = ui.button('UMÓW WIZYTĘ', on_click=lambda: ui.notify("Funkcja rejestracji wizyty będzie dostępna w pełnej wersji.")).props('color=primary icon=calendar_month')
     save_float_btn = ui.button('ZAPISZ DO PLIKU', on_click=manual_save_to_file).props('color=primary icon=save')
     legend_float_btn = ui.button('LEGENDA CECH', on_click=show_legend).props('color=secondary icon=help_outline')
